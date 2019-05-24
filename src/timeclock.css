@@ -1,0 +1,67 @@
+@import '../node_modules/typeface-montserrat/index.css';
+
+.container {
+    font-family: sans-serif;
+    position: relative;
+    font-family: 'Montserrat';
+    width: 760px;
+    height: 440px;
+    margin: 20px 20px;
+}
+
+.btn {
+    padding: 20px 30px;
+    border: 0;
+    font-size: 32px;
+    font-weight: 800;
+    color: #fff;
+    border-radius: 4px;
+    width: 200px;
+    height: 200px;
+}
+
+.btn:active {
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+  }
+
+option {
+    font-size: 24px;
+    font-weight: bold;
+    margin-left: 10px;
+    height: 32px;
+}
+
+#clock {
+    font-size: 96px;
+    font-family: 'Montserrat';
+    font-weight: 800;
+    position: absolute;
+    top: -10px;
+    left: 0;
+}
+
+#teamMember {
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    width: 520px;
+}
+
+#clockIn {
+    position: absolute;
+    top: 10;
+    right: 15;
+}
+
+#clockOut {
+    position: absolute;
+    bottom: 10;
+    right: 15;
+}
+
+#settings {
+    position: absolute;
+    left: 10;
+    bottom: 0;
+}
