@@ -1,0 +1,186 @@
+@import '../node_modules/typeface-montserrat/index.css';
+
+body {
+    font-family: 'Montserrat';
+}
+
+#container {
+    position: relative;
+    width: 758px;
+    height: 438px;
+    margin: 20px 20px;
+}
+
+.btn {
+    border:2px solid white;
+    display: inline-block;
+    padding: 5px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.btn:active {
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+}
+
+label {
+    font-weight: bold;
+}
+
+sup {
+    color: red;
+}
+
+#header {
+    position: absolute;
+    top: 10px;
+    left: 15px;
+    font-size: 24px;
+    font-weight: bold; 
+}
+
+#close {
+    position: absolute;
+    top: 5px;
+    right: 15px;
+    font-weight: bold;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+#teamMember {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: 400px;
+    border: none;
+}
+
+#showInactiveDiv {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+#role, option {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#role {
+    width: 200px;
+}
+
+#details {
+    position: absolute;
+    top: 30px;
+    left: 420px;
+}
+
+#message {
+    /* position: absolute; */
+    font-family: 'Montserrat';
+    color: yellow;
+    right: 420px;
+    bottom: 15px;
+}
+
+#bulkActions {
+    position: absolute;
+    bottom: 0;
+    left: 420px;
+}
+
+input {
+    border: none;
+}
+
+input[type=text] {
+    font-size: 18px;
+    width: 200px;
+    padding: 5px;
+}
+
+input[type=checkbox].css-checkbox {
+    position:absolute; z-index:-1000; left:-1000px; overflow: hidden; clip: rect(0 0 0 0); height:1px; width:1px; margin:-1px; padding:0; border:0;
+}
+
+input[type=checkbox].css-checkbox + label.css-label {
+    padding-left: 20px;
+    height: 15px;
+    display: inline-block;
+    line-height: 15px;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+input[type=checkbox].css-checkbox:checked + label.css-label {
+    background-position: 0 -15px;
+}
+
+label.css-label {
+    background-image: url(checkbox.png);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+input[type=radio].css-radio {
+    position:absolute; z-index:-1000; left:-1000px; overflow: hidden; clip: rect(0 0 0 0); height:1px; width:1px; margin:-1px; padding:0; border:0;
+}
+
+input[type=radio].css-radio + label.css-label-radio {
+    padding-left: 18px;
+    height: 15px; 
+    display: inline-block;
+    line-height: 15px;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+input[type=radio].css-radio:checked + label.css-label-radio {
+    background-position: 0 -15px;
+}
+
+label.css-label-radio {
+    background-image: url(radio.png);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+*::-webkit-selection {
+    background: transparent;
+}
+
+@keyframes fadeIn{
+    0% {
+      opacity:0;
+    }
+    100% {
+      opacity:1;
+    }
+  }
+  
+@keyframes fadeOut{
+    0% {
+      opacity:1;
+    }
+    100% {
+      opacity:0;
+    }
+  }
+  
+.fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.fade-out {
+    animation: fadeOut 2.0s ease forwards;
+}

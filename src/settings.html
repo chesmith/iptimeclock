@@ -1,9 +1,84 @@
 <html>
-    <head>
-        <link rel="stylesheet" href="timeclock.css" />
-    </head>
-    <body>
-        <button id="close">Close</button>
-    </body>
-    <script>require('./settings_renderer.js')</script>
+
+<head>
+    <link rel="stylesheet" href="settings.css" />
+</head>
+
+<body style="background: #333; color: white;">
+    <div id="header">Manage Team Members</div>
+    <div id="close">X</div>
+    <div id="container">
+        <select id="teamMember" size="17"></select>
+        <div id="showInactiveDiv"><input type="checkbox" id="showInactive" class="css-checkbox"><label for="showInactive" class="css-label">Show inactive team members</label></div>
+        <div id="details">
+            <table>
+                <tr>
+                    <td colspan="3">
+                        <div id="addNew" class="btn">+ Add Team Member</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="height: 10px"></td>
+                </tr>
+                <tr>
+                    <td><label for="firstname">First Name<sup>*</sup></label></td>
+                    <td>&nbsp;</td>
+                    <td><input id="firstname" type="text"></td>
+                </tr>
+                <tr>
+                    <td><label for="lastname">Last Name<sup>*</sup></label></td>
+                    <td>&nbsp;</td>
+                    <td><input id="lastname" type="text"></td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="height: 5px"></td>
+                </tr>
+                <tr>
+                    <td><label for="email">Email</label></td>
+                    <td>&nbsp;</td>
+                    <td><input id="email" type="text"></td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="height: 5px"></td>
+                </tr>
+                <tr>
+                    <td><label for="role2">Role<sup>*</sup></label></td>
+                    <td>&nbsp;</td>
+                    <td>
+                        <input type="radio" name="role" id="student" class="css-radio"><label for="student" class="css-label-radio">Student</label>&nbsp;&nbsp;
+                        <input type="radio" name="role" id="mentor" class="css-radio"><label for="mentor" class="css-label-radio">Mentor</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="height: 5px"></td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                    <td><input id="active" type="checkbox" class="css-checkbox" checked><label for="active" class="css-label">Active</label></td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="height: 10px"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div id="delete" class="btn" style="border: 1px solid red; color: red">Remove</div>
+                    </td>
+                    <td>&nbsp;</td>
+                    <td style="text-align: right">
+                        <div class="btn" id="save">Save</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3"><div id="lastPunch" style="text-align: right"></div><div id="message" style="text-align: right"></div></td>
+                </tr>
+            </table>
+        </div>
+        <div style="display: flex; justify-content: space-between; width: 316px" id="bulkActions">
+            <div id="clockOutAll" class="btn">Clock Out All</div>
+            <div id="transmitReports" class="btn">Transmit Reports</div>
+        </div>
+    </div>
+</body>
+<script>require('./settings_renderer.js')</script>
+
 </html>

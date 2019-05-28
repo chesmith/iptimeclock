@@ -1,0 +1,61 @@
+@import '../node_modules/typeface-montserrat/index.css';
+
+#container {
+    font-family: sans-serif;
+    position: relative;
+    font-family: 'Montserrat';
+    margin: 5px 5px;
+}
+
+.btn {
+    height: 84px;
+    width: 84px;
+    line-height: 84px;
+    background: black;
+    border: none;
+    color: white;
+    font-size: 32px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.display {
+    display:flex;
+}
+
+#disp1, #disp2, #disp3, #disp4 {
+    height: 63px;
+    width: 63px;
+    line-height: 63px;
+    background: black;
+    color: white;
+    font-size: 63px;
+    text-align: center;
+}
+
+.shake {
+    outline-color: red;
+    animation: shake 0.5s linear;
+}
+
+@keyframes shake {
+    8%, 41% {
+        -webkit-transform: translateX(-10px);
+    }
+    25%, 58% {
+        -webkit-transform: translateX(10px);
+    }
+    75% {
+        -webkit-transform: translateX(-5px);
+    }
+    92% {
+        -webkit-transform: translateX(5px);
+    }
+    0%, 100% {
+        -webkit-transform: translateX(0);
+    }
+}
+
+*::-webkit-selection {
+    background:transparent;
+}

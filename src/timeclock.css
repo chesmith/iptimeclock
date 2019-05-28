@@ -1,7 +1,6 @@
 @import '../node_modules/typeface-montserrat/index.css';
 
-.container {
-    font-family: sans-serif;
+#container {
     position: relative;
     font-family: 'Montserrat';
     width: 760px;
@@ -10,25 +9,28 @@
 }
 
 .btn {
-    padding: 20px 30px;
+    padding: 10px 10px;
+    padding-top: 25px;
     border: 0;
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 800;
     color: #fff;
     border-radius: 4px;
-    width: 200px;
-    height: 200px;
+    width: 170px;
+    height: 155px;
+    text-align: center;
+    cursor: pointer
 }
 
 .btn:active {
     -webkit-transform: scale(0.95);
     transform: scale(0.95);
-  }
+}
 
 option {
     font-size: 24px;
     font-weight: bold;
-    margin-left: 10px;
+    /* margin-left: 10px; */
     height: 32px;
 }
 
@@ -39,6 +41,20 @@ option {
     position: absolute;
     top: -10px;
     left: 0;
+    display:flex;
+}
+
+#colon {
+    width: 40px;
+    text-align: center;
+}
+
+#iplogo {
+    position: absolute;
+    top: 185px;
+    left: 40px;
+    height: 200px;
+    z-index: -1;
 }
 
 #teamMember {
@@ -46,22 +62,62 @@ option {
     bottom: 30px;
     left: 0;
     width: 520px;
+    border: none;
+    opacity: 0.97;
 }
 
 #clockIn {
     position: absolute;
-    top: 10;
-    right: 15;
+    top: 20;
+    right: 20;
 }
 
 #clockOut {
     position: absolute;
-    bottom: 10;
-    right: 15;
+    bottom: 20;
+    right: 20;
 }
 
 #settings {
     position: absolute;
     left: 10;
-    bottom: 0;
+    bottom: 10;
+}
+
+#message {
+    position: absolute;
+    font-family: 'Montserrat';
+    color: yellow;
+    right: 255px;
+    bottom: 15px;
+}
+
+*::-webkit-selection {
+    background:transparent;
+}
+
+@keyframes fadeIn{
+    0% {
+      opacity:0;
+    }
+    100% {
+      opacity:1;
+    }
+  }
+  
+@keyframes fadeOut{
+    0% {
+      opacity:1;
+    }
+    100% {
+      opacity:0;
+    }
+  }
+  
+.fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.fade-out {
+    animation: fadeOut 2.0s ease forwards;
 }

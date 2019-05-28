@@ -10,10 +10,11 @@ const BrowserWindow = electron.BrowserWindow;
 const ipc = electron.ipcMain;
 
 let mainWindow;
+let passcodeWindow;
 
 let kioskMode = (os.platform() == 'linux');
 
-app.on('ready', _ => {
+app.on('ready', () => {
     mainWindow = new BrowserWindow({
         width: 800,
         height: 480,
@@ -27,7 +28,7 @@ app.on('ready', _ => {
 
     mainWindow.loadURL(`file://${__dirname}/timeclock.html`);
 
-    mainWindow.webContents.once('dom-ready', _ => {
+    mainWindow.webContents.once('dom-ready', () => {
         displayClock((h, m, a, b) => {
             mainWindow.webContents.send('displayClock', h, m, a, b);
         });
@@ -35,25 +36,59 @@ app.on('ready', _ => {
         team.load((teamMembers) => {
             mainWindow.webContents.send('loadTeam', teamMembers);
         });
+        mainWindow.show();
     });
 
-    mainWindow.on('closed', _ => {
+    mainWindow.on('closed', () => {
         mainWindow = null;
-        console.log('closed - TODO notify someone');
+        //TODO: notify someone
     });
 
-    mainWindow.show();
+    passcodeWindow = new BrowserWindow({
+        width: 260,
+        height: 410,
+        frame: false,
+        parent: mainWindow,
+        modal: true,
+        show: false,
+        webPreferences: {
+            nodeIntegration: true
+        }
+    });
+    passcodeWindow.loadURL(`file://${__dirname}/passcode.html`);
+
+    settingsWindow = new BrowserWindow({
+        width: 798,
+        height: 478,
+        frame: false,
+        parent: mainWindow,
+        modal: true,
+        show: false,
+        webPreferences: {
+            nodeIntegration: true
+        }
+    });
+    settingsWindow.loadURL(`file://${__dirname}/settings.html`);
 });
 
-ipc.on('teamMemberChange', (evt, id, name) => {
-    console.log('teamMemberChange: ' + id + " / " + name);
-    //TODO
+ipc.on('displayPasscodeEntry', (evt) => {
+    passcodeWindow.show();
+});
+
+ipc.on('displaySettings', (evt) => {
+    team.load((teamMembers) => {
+        settingsWindow.webContents.send('loadTeam', teamMembers);
+    });
+    passcodeWindow.hide();
+    settingsWindow.show();
 });
 
 ipc.on('reloadTeam', (evt) => {
-    console.log('mainjs reloadTeam');
     team.load((teamMembers) => {
-        console.log('mainjs loadTeam team.load');
         mainWindow.webContents.send('loadTeam', teamMembers);
     });
+});
+
+ipc.on('set-id', (evt, id) => {
+    passcodeWindow.webContents.send('set-id', id);
 });

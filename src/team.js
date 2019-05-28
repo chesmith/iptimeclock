@@ -1,32 +1,49 @@
-const mysql = require('mysql');
+const util = require('./util.js');
 
 module.exports = {
-    load: function load(populateList) {
-        var con = mysql.createConnection({
-            host: "localhost",
-            user: "***REMOVED***",
-            password: "***REMOVED***",
-            database: "TIMECLOCK"
-        });
-
-        con.connect(function(err) {
-            if(err) {
-                console.log('error connecting to db');
+    load: function (callback) {
+        let sql = `SELECT m.*, p2.punchtype, p2.created as punchtime
+                    FROM teammembers as m
+                    LEFT JOIN (SELECT memberid, MAX(id) AS maxid FROM punches as p GROUP BY memberid) AS p1
+                    ON m.id = p1.memberid
+                    LEFT JOIN punches AS p2
+                    ON p2.id = p1.maxid
+                    WHERE NOT m.deleted
+                    ORDER BY if(role='student',1,2), lastname`;
+        util.dbexec(sql, (err, results) => {
+            if (!err) {
+                callback(results);
             }
-            con.query("SELECT m.*, p2.punchtype, p2.created as punchtime FROM teammembers as m"
-                    + " LEFT JOIN (SELECT memberid, MAX(id) AS maxid"
-                    + " FROM punches as p GROUP BY memberid) AS p1"
-                    + " ON m.id = p1.memberid"
-                    + " LEFT JOIN punches AS p2"
-                    + " ON p2.id = p1.maxid", function (err, results, fields) {
-                if (!err) {
-                    populateList(results);
-                }
-                else {
-                    console.log(err);
-                }
-                con.end();
-            });
+        });
+    },
+
+    add: function (firstname, lastname, email, role, callback) {
+        let sql = `INSERT INTO teammembers (firstname, lastname, email, role)
+                    VALUES ('${firstname}', '${lastname}', '${email}', '${role}')`;
+        util.dbexec(sql, (err, results) => {
+            if (!err) {
+                callback(err, results);
+            }
+        });
+    },
+
+    update: function (id, firstname, lastname, email, role, active, callback) {
+        let sql = `UPDATE teammembers SET
+                    firstname = '${firstname}',
+                    lastname = '${lastname}',
+                    email = '${email}',
+                    role = '${role}',
+                    active = ${active}
+                    WHERE id = ${id}`;
+        util.dbexec(sql, (err, results) => {
+            callback(err);
+        });
+    },
+
+    delete: function (id, callback) {
+        let sql = `UPDATE teammembers SET deleted = true WHERE id = ${id}`;
+        util.dbexec(sql, (err, results) => {
+            callback(err);
         });
     }
 }
