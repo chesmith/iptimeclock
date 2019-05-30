@@ -22,6 +22,7 @@ ipc.on('loadTeam', (evt, teamMembers) => {
 
 function populateTeamMemberList(teamMembers) {
     let showInactive = document.getElementById('showInactive').checked;
+    //TODO: ? opportunity to put this in a shared location, since it's pretty much same as the main screen?
     teamMemberList.options.length = 0;
     teamMembers.forEach((member) => {
         if (member.active || showInactive) {
@@ -163,6 +164,7 @@ function addTeamMember() {
     team.add(firstName.value, lastName.value, email.value, role, (err, id) => {
         if (!err) {
             selectedId = id;
+            //TODO: have the load action display a spinny icon
             team.load(populateTeamMemberList);
         }
     });
@@ -181,6 +183,8 @@ function updateTeamMember() {
                 selectedId = -1;
                 selectedOption = null;
             }
+            //TODO: this took forever after updating a first name, and the main screen didn't update - hrm, it's like the updated didn't even take hold until i tried again
+            //      i think this needs to be blocking - i.e. no more actions until this completes OR just manually update the list entry (remember to update the data attributes)
             team.load(populateTeamMemberList);
         }
     });

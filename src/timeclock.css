@@ -1,8 +1,11 @@
 @import '../node_modules/typeface-montserrat/index.css';
 
+body {
+    font-family: 'Montserrat';
+}
+
 #container {
     position: relative;
-    font-family: 'Montserrat';
     width: 760px;
     height: 440px;
     margin: 20px 20px;
@@ -30,13 +33,11 @@
 option {
     font-size: 24px;
     font-weight: bold;
-    /* margin-left: 10px; */
     height: 32px;
 }
 
 #clock {
     font-size: 96px;
-    font-family: 'Montserrat';
     font-weight: 800;
     position: absolute;
     top: -10px;
@@ -63,7 +64,7 @@ option {
     left: 0;
     width: 520px;
     border: none;
-    opacity: 0.97;
+    opacity: 0.95;
 }
 
 #clockIn {
@@ -82,14 +83,30 @@ option {
     position: absolute;
     left: 10;
     bottom: 10;
+    opacity: 0;
+}
+
+#alert {
+    position: absolute;
+    font-weight: bold;
+    color: red;
+    left: 50px;
+    bottom: 15px;
 }
 
 #message {
     position: absolute;
-    font-family: 'Montserrat';
     color: yellow;
     right: 255px;
     bottom: 15px;
+}
+
+#online {
+    position: absolute;
+    right: 10px;
+    bottom: 0;
+    font-weight: 900;
+    color: grey;
 }
 
 *::-webkit-selection {
@@ -105,7 +122,7 @@ option {
     }
   }
   
-@keyframes fadeOut{
+  @keyframes fadeOut{
     0% {
       opacity:1;
     }
@@ -113,6 +130,18 @@ option {
       opacity:0;
     }
   }
+
+  @keyframes fadeBounce{
+      0% {
+        opacity:0;
+      }
+      25% {
+        opacity:1;
+      }
+      100% {
+        opacity:1;
+      }
+    }
   
 .fade-in {
     animation: fadeIn 0.5s ease forwards;
@@ -120,4 +149,8 @@ option {
 
 .fade-out {
     animation: fadeOut 2.0s ease forwards;
+}
+
+.fade-bounce {
+    animation: fadeBounce 5s infinite;
 }

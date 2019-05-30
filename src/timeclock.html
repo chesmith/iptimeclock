@@ -8,10 +8,12 @@
             <div id="clock"><div id="hour"></div><div id="colon" style="color:black">:</div><div id="minute"></div></div>
             <select id="teamMember" size="9"></select>
             <div class="btn" id="clockIn" style="background: rgba(255,0,0,0.85);">Clock In<p><img src="in.png"></p></div>
-            <div class="btn" id="clockOut" style="background: rgba(0,0,255,0.85)">Clock Out<p></p><img src="out.png"></p></div>
+            <div class="btn" id="clockOut" style="background: rgba(0,0,255,0.85)">Clock Out<p><img src="out.png"></p></div>
         </div>
-        <img id="settings" src="settings.jpg" style="opacity: 0">
-        <div id="message"><p></p></div>
+        <img id="settings" src="settings.jpg">
+        <div id="alert"></div>
+        <div id="message"></div>
+        <div id="online">&middot;</div>
     </body>
     <script>require('./timeclock_renderer.js')</script>
 </html>

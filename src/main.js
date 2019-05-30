@@ -92,3 +92,12 @@ ipc.on('reloadTeam', (evt) => {
 ipc.on('set-id', (evt, id) => {
     passcodeWindow.webContents.send('set-id', id);
 });
+
+app.on('certificate-error', (event, webContents, url, error, certifiate, callback) => {
+    if(url === '***REMOVED***') {  //ignore certificate errors, since this uses a self-signed cert
+        event.preventDefault();
+        callback(true);
+    } else {
+        callback(false);
+    }
+});

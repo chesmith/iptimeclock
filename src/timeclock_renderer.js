@@ -2,10 +2,25 @@ const electron = require('electron');
 const ipc = electron.ipcRenderer;
 const timeclock = require('./timeclock.js');
 const util = require('./util.js');
+// const isOnline = require('is-online');
 
 let teamMemberList = document.getElementById('teamMember');
-let message = document.getElementById('message');
-let timer;
+let infoMessage = document.getElementById('message');
+let alertMessage = document.getElementById('alert');
+let timerMessage;
+
+setInterval(() => {
+    util.checkOnlineStatus((err, online) => {
+        let color;
+        console.table([[`err`,`${err}`], [`online status`,`${online}`]]);
+        switch(online) {
+            case 0: color = 'white'; break;
+            case 2: case 3: color = 'orange'; break;
+            default: color = 'red'
+        }
+        document.getElementById('online').style.color = color;
+    });
+}, 2500);
 
 teamMemberList.addEventListener('change', () => {
     let role = teamMemberList.options[teamMemberList.selectedIndex].getAttribute('data-role');
@@ -18,21 +33,33 @@ function showSettings(enable) {
     document.getElementById('settings').style.opacity = (enable ? '1' : '0');
 }
 
-function displayMessage(text) {
-    clearTimeout(timer);
-    message.innerText = text;
-    message.classList.remove('fade-out');
-    message.classList.add('fade-in');
-    timer = setTimeout(() => {
-        message.classList.remove('fade-in');
-        message.classList.add('fade-out');
+function displayInfo(text) {
+    //TODO: i suspect i can do this with a single animation and class set
+    clearTimeout(timerMessage);
+    infoMessage.innerText = text;
+    infoMessage.classList.remove('fade-out');
+    infoMessage.classList.add('fade-in');
+    timerMessage = setTimeout(() => {
+        infoMessage.classList.remove('fade-in');
+        infoMessage.classList.add('fade-out');
+        infoMessage.innerText = '';
     }, 2500);
+}
+
+function displayAlert(text) {
+    alertMessage.innerText = text;
+    alertMessage.classList.add('fade-bounce');
+}
+
+function clearAlert() {
+    alertMessage.innerText = '';
+    alertMessage.classList.remove('fade-bounce');
 }
 
 document.getElementById('clockIn').addEventListener('click', () => {
     let selectedIndex = teamMemberList.selectedIndex;
     if (selectedIndex == -1) {
-        displayMessage('Please select a team member first');
+        displayInfo('Please select a team member first');
         return;
     }
     let teamMemberId = teamMemberList.value;
@@ -40,11 +67,9 @@ document.getElementById('clockIn').addEventListener('click', () => {
         //TODO: "Looks like <user> is already clocked in.  Are you sure you want to clock in again?", and just let em
         let firstname = teamMemberList[selectedIndex].getAttribute('data-firstname');
         if (clockedIn) {
-            displayMessage(`${firstname} is already clocked in`);
-            console.log(`${teamMemberId}: can't clock in because they're not clocked out`);
+            displayInfo(`${firstname} is already clocked in`);
         }
         else {
-            console.log(`${teamMemberId}: clocking in`);
             timeclock.clockIn(teamMemberId, (err, clockTime) => {
                 if (!err) {
                     let text = teamMemberList[selectedIndex].text;
@@ -52,7 +77,7 @@ document.getElementById('clockIn').addEventListener('click', () => {
                     // if(text.indexOf('(') > -1)
                     //     text = text.substring(0, text.indexOf('(') - 1);
                     teamMemberList[selectedIndex].text = text + ` (in since ${util.formatTime(clockTime)})`;
-                    displayMessage(`${firstname}, you've been clocked in`);
+                    displayInfo(`${firstname}, you've been clocked in`);
                 }
             });
         }
@@ -62,25 +87,23 @@ document.getElementById('clockIn').addEventListener('click', () => {
 document.getElementById('clockOut').addEventListener('click', () => {
     let selectedIndex = teamMemberList.selectedIndex;
     if (selectedIndex == -1) {
-        displayMessage('Please select a team member first');
+        displayInfo('Please select a team member first');
         return;
     }
     let teamMemberId = teamMemberList.value;
     timeclock.isClockedIn(teamMemberId, (clockedIn) => {
         let firstname = teamMemberList[selectedIndex].getAttribute('data-firstname');
         if (clockedIn) {
-            console.log(`${teamMemberId}: clocking out`);
             timeclock.clockOut(teamMemberId, (err, clockTime) => {
                 if (!err) {
                     let text = teamMemberList[selectedIndex].text;
                     teamMemberList[selectedIndex].text = text.substring(0, text.indexOf('(') - 1);
-                    displayMessage(`${firstname}, you've been clocked out`);
+                    displayInfo(`${firstname}, you've been clocked out`);
                 }
             });
         }
         else {
-            displayMessage(`${firstname} is already clocked out`);
-            console.log(`${teamMemberId}: can't clock out because they're not clocked in`);
+            displayInfo(`${firstname} is already clocked out`);
         }
     });
 });
@@ -122,4 +145,6 @@ document.getElementById('settings').addEventListener('click', () => {
             ipc.send('displayPasscodeEntry');
         }
     }
+
+    // util.connectWifi();
 });

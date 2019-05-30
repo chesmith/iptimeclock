@@ -10,7 +10,7 @@ module.exports = {
                     ON p2.id = p1.maxid
                     WHERE NOT m.deleted
                     ORDER BY if(role='student',1,2), lastname`;
-        util.dbexec(sql, (err, results) => {
+        util.dbexec(sql, [], (err, results) => {
             if (!err) {
                 callback(results);
             }
@@ -18,9 +18,8 @@ module.exports = {
     },
 
     add: function (firstname, lastname, email, role, callback) {
-        let sql = `INSERT INTO teammembers (firstname, lastname, email, role)
-                    VALUES ('${firstname}', '${lastname}', '${email}', '${role}')`;
-        util.dbexec(sql, (err, results) => {
+        let sql = 'INSERT INTO teammembers (firstname, lastname, email, role) VALUES (?, ?, ?, ?)';
+        util.dbexec(sql, [firstname, lastname, email, role], (err, results) => {
             if (!err) {
                 callback(err, results);
             }
@@ -28,21 +27,15 @@ module.exports = {
     },
 
     update: function (id, firstname, lastname, email, role, active, callback) {
-        let sql = `UPDATE teammembers SET
-                    firstname = '${firstname}',
-                    lastname = '${lastname}',
-                    email = '${email}',
-                    role = '${role}',
-                    active = ${active}
-                    WHERE id = ${id}`;
-        util.dbexec(sql, (err, results) => {
+        let sql = 'UPDATE teammembers SET firstname = ?, lastname = ?, email = ?, role = ?, active = ? WHERE id = ?';
+        util.dbexec(sql,[firstname, lastname, email, role, active, id],  (err, results) => {
             callback(err);
         });
     },
 
     delete: function (id, callback) {
-        let sql = `UPDATE teammembers SET deleted = true WHERE id = ${id}`;
-        util.dbexec(sql, (err, results) => {
+        let sql = 'UPDATE teammembers SET deleted = true WHERE id = ?';
+        util.dbexec(sql, [id], (err, results) => {
             callback(err);
         });
     }
