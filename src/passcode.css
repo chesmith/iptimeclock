@@ -1,5 +1,10 @@
 @import '../node_modules/typeface-montserrat/index.css';
 
+body {
+    margin: 0;
+    -webkit-user-select: none;
+}
+
 #container {
     font-family: sans-serif;
     position: relative;

@@ -2,6 +2,10 @@
 
 body {
     font-family: 'Montserrat';
+    margin: 0;
+    background: black;
+    color: white;
+    -webkit-user-select: none;
 }
 
 #container {
@@ -103,7 +107,7 @@ option {
 
 #online {
     position: absolute;
-    right: 10px;
+    right: 0;
     bottom: 0;
     font-weight: 900;
     color: grey;
@@ -142,6 +146,21 @@ option {
         opacity:1;
       }
     }
+
+@keyframes fadeSingle {
+    0% {
+        opacity:0;
+    }
+    20% {
+        opacity:1;
+    }
+    75% {
+        opacity:1;
+    }
+    100% {
+        opacity:0;
+    }
+}
   
 .fade-in {
     animation: fadeIn 0.5s ease forwards;
@@ -153,4 +172,8 @@ option {
 
 .fade-bounce {
     animation: fadeBounce 5s infinite;
+}
+
+.fade-single {
+    animation: fadeSingle 5s ease forwards;
 }

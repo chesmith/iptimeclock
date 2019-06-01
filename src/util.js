@@ -4,7 +4,8 @@ const dns = require('dns');
 const http = require('http');
 const wifi = require('node-wifi');
 const axios = require('axios');
-var querystring = require('querystring');
+const querystring = require('querystring');
+const nodemailer = require('nodemailer');
 
 module.exports = {
     formatTime: function (timeToFormat) {
@@ -106,22 +107,31 @@ module.exports = {
         });
     },
 
-    connectWifi: function () {
+    connectWifi: function (callback) {
+        const maxretries = 10;
+
         wifi.init({
             iface: null
         });
 
-        // wifi.connect({ ssid: '***REMOVED***', password: '***REMOVED***' }, (err) => {
-        wifi.connect({ ssid: '***REMOVED***', password: null }, (err) => {
+        wifi.connect({ ssid: '***REMOVED***', password: '***REMOVED***' }, (err) => {
+            //wifi.connect({ ssid: '***REMOVED***', password: null }, (err) => {
             if (err) {
                 console.error(`unable to connect to wifi: ${err}`);
             }
             else {
+                //wait a moment to establish the connection
                 setTimeout(() => {
-                    this.checkOnlineStatus((err, online) => {
-                        let retry = 0;
-                        let connectRetry = setInterval(() => {
-                            if (online == 2 || online == 3) {
+                    let retry = 0;
+                    let retryInterval = setInterval(() => {
+                        retry++;
+                        this.checkOnlineStatus((err, online) => {
+                            console.info(`connect online: ${online} / retry: ${retry}`);
+                            if (online == 0) {
+                                clearInterval(retryInterval);
+                                callback();
+                            }
+                            else if (online == 2 || online == 3) {
                                 let data = querystring.stringify({
                                     username: '***REMOVED***',
                                     password: '***REMOVED***',
@@ -130,20 +140,65 @@ module.exports = {
 
                                 axios.post('***REMOVED***', data)
                                     .then((res) => {
-                                        cancelInterval(connectRetry);
+                                        // clearInterval(retryInterval);
+                                        // if(typeof callback != 'undefined') callback();
                                     })
                                     .catch((error) => {
                                         console.warn(`problem posting to capture portal: ${error}`);
                                     });
                             }
-                            if (++retry > 10) {
-                                cancelInterval(connectRetry);
+
+                            if (retry > maxretries) {
+                                clearInterval(retryInterval);
                             }
-                        }, 1000);
-                    });
+                            else {
+                                callback(retry, maxretries);
+                            }
+                        });
+                    }, 3000);
                 }, 5000);
             }
         });
-    }
+    },
 
+    emailMentors: function (subject, message, attachments) {
+        var transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: { user: '***REMOVED***', pass: '***REMOVED***' }
+        });
+
+        let sql = `select * from teammembers where role = 'mentor' AND active AND LENGTH(IFNULL(email,'')) > 0;`;
+        this.dbexec(sql, [], (err, results) => {
+            if (!err) {
+                let recipients = '';
+                results.forEach((mentor) => {
+                    if (recipients.length > 0) {
+                        recipients += ',';
+                    }
+                    recipients += mentor.email;
+                });
+                if (recipients.length > 0) {
+                    var mailOptions = {
+                        from: '***REMOVED***',
+                        to: recipients,
+                        subject: subject,
+                        text: message
+                    };
+
+                    if(typeof attachments != 'undefined' && attachments.length > 0) {
+                        mailOptions["attachments"] = attachments;
+                    }
+
+                    transporter.sendMail(mailOptions, function (err, info) {
+                        if (err) {
+                            console.warn(`send email failure: ${err}`);
+                        }
+                        else {
+                            console.log('email success');
+                        }
+                    });
+                }
+            }
+        });
+    }
 }

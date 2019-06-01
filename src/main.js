@@ -1,7 +1,8 @@
 const electron = require('electron');
 
-const displayClock = require('./clock.js');
+const clock = require('./clock.js');
 const team = require('./team.js');
+const util = require('./util.js');
 
 const os = require('os');
 
@@ -11,6 +12,7 @@ const ipc = electron.ipcMain;
 
 let mainWindow;
 let passcodeWindow;
+let settingsWindow;
 
 let kioskMode = (os.platform() == 'linux');
 
@@ -29,7 +31,7 @@ app.on('ready', () => {
     mainWindow.loadURL(`file://${__dirname}/timeclock.html`);
 
     mainWindow.webContents.once('dom-ready', () => {
-        displayClock((h, m, a, b) => {
+        clock.displayClock((h, m, a, b) => {
             mainWindow.webContents.send('displayClock', h, m, a, b);
         });
 
@@ -39,9 +41,13 @@ app.on('ready', () => {
         mainWindow.show();
     });
 
+    mainWindow.on('close', () => {
+        clock.killClock();
+        //TODO: for some reason, this doesn't work here - util.emailMentors('Someone shut down the timeclock');
+    });
+
     mainWindow.on('closed', () => {
         mainWindow = null;
-        //TODO: notify someone
     });
 
     passcodeWindow = new BrowserWindow({
@@ -69,6 +75,13 @@ app.on('ready', () => {
         }
     });
     settingsWindow.loadURL(`file://${__dirname}/settings.html`);
+
+    settingsWindow.on('show', (evt) => {
+        team.load((teamMembers) => {
+            settingsWindow.webContents.send('reset');
+            settingsWindow.webContents.send('loadTeam', teamMembers);
+        });
+    });
 });
 
 ipc.on('displayPasscodeEntry', (evt) => {
@@ -76,9 +89,9 @@ ipc.on('displayPasscodeEntry', (evt) => {
 });
 
 ipc.on('displaySettings', (evt) => {
-    team.load((teamMembers) => {
-        settingsWindow.webContents.send('loadTeam', teamMembers);
-    });
+    // team.load((teamMembers) => {
+    //     settingsWindow.webContents.send('loadTeam', teamMembers);
+    // });
     passcodeWindow.hide();
     settingsWindow.show();
 });

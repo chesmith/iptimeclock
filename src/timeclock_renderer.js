@@ -2,7 +2,6 @@ const electron = require('electron');
 const ipc = electron.ipcRenderer;
 const timeclock = require('./timeclock.js');
 const util = require('./util.js');
-// const isOnline = require('is-online');
 
 let teamMemberList = document.getElementById('teamMember');
 let infoMessage = document.getElementById('message');
@@ -34,15 +33,14 @@ function showSettings(enable) {
 }
 
 function displayInfo(text) {
-    //TODO: i suspect i can do this with a single animation and class set
     clearTimeout(timerMessage);
-    infoMessage.innerText = text;
+    infoMessage.innerHTML = text;
     infoMessage.classList.remove('fade-out');
     infoMessage.classList.add('fade-in');
     timerMessage = setTimeout(() => {
         infoMessage.classList.remove('fade-in');
         infoMessage.classList.add('fade-out');
-        infoMessage.innerText = '';
+        infoMessage.innerHTML = '';
     }, 2500);
 }
 
@@ -64,7 +62,6 @@ document.getElementById('clockIn').addEventListener('click', () => {
     }
     let teamMemberId = teamMemberList.value;
     timeclock.isClockedIn(teamMemberId, (clockedIn) => {
-        //TODO: "Looks like <user> is already clocked in.  Are you sure you want to clock in again?", and just let em
         let firstname = teamMemberList[selectedIndex].getAttribute('data-firstname');
         if (clockedIn) {
             displayInfo(`${firstname} is already clocked in`);
@@ -73,9 +70,8 @@ document.getElementById('clockIn').addEventListener('click', () => {
             timeclock.clockIn(teamMemberId, (err, clockTime) => {
                 if (!err) {
                     let text = teamMemberList[selectedIndex].text;
-                    //TODO: if allowing clocking in while already clocked in, first remove the 'in since' text, so we don't double up
-                    // if(text.indexOf('(') > -1)
-                    //     text = text.substring(0, text.indexOf('(') - 1);
+                    if(text.indexOf('(') > -1)
+                        text = text.substring(0, text.indexOf('(') - 1);
                     teamMemberList[selectedIndex].text = text + ` (in since ${util.formatTime(clockTime)})`;
                     displayInfo(`${firstname}, you've been clocked in`);
                 }
@@ -145,6 +141,4 @@ document.getElementById('settings').addEventListener('click', () => {
             ipc.send('displayPasscodeEntry');
         }
     }
-
-    // util.connectWifi();
 });

@@ -28,7 +28,7 @@ module.exports = {
 
     update: function (id, firstname, lastname, email, role, active, callback) {
         let sql = 'UPDATE teammembers SET firstname = ?, lastname = ?, email = ?, role = ?, active = ? WHERE id = ?';
-        util.dbexec(sql,[firstname, lastname, email, role, active, id],  (err, results) => {
+        util.dbexec(sql, [firstname, lastname, email, role, active, id], (err, results) => {
             callback(err);
         });
     },

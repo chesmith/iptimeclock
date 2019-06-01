@@ -20,9 +20,14 @@ ipc.on('loadTeam', (evt, teamMembers) => {
     populateTeamMemberList(teamMembers);
 });
 
+ipc.on('reset', (evt) => {
+    selectedId = -1;
+    selectedOption = null;
+    clearFields();
+});
+
 function populateTeamMemberList(teamMembers) {
     let showInactive = document.getElementById('showInactive').checked;
-    //TODO: ? opportunity to put this in a shared location, since it's pretty much same as the main screen?
     teamMemberList.options.length = 0;
     teamMembers.forEach((member) => {
         if (member.active || showInactive) {
@@ -34,7 +39,7 @@ function populateTeamMemberList(teamMembers) {
             option.setAttribute('data-active', member.active);
             option.setAttribute('data-punchtype', member.punchtype);
             option.setAttribute('data-punchtime', member.punchtime);
-            option.text = ' ' + (member.role == 'mentor' ? 'Mentor: ' : '') + member.lastname + ", " + member.firstname;
+            option.text = ' ' + (member.role == 'mentor' ? 'Mentor: ' : '') + member.lastname + ', ' + member.firstname;
             if (!member.active) {
                 option.text += ' (inactive)';
             }
@@ -45,6 +50,7 @@ function populateTeamMemberList(teamMembers) {
         teamMemberList.value = selectedId;
         selectedOption = teamMemberList[teamMemberList.selectedIndex];
     }
+    document.getElementById('loading').style.display = 'none';
 }
 
 function populateDetails() {
@@ -56,7 +62,7 @@ function populateDetails() {
     else {
         active.checked = false;
     }
-    let student = (selectedOption.getAttribute('data-role') == "student");
+    let student = (selectedOption.getAttribute('data-role') == 'student');
     roleStudent.checked = student;
     roleMentor.checked = !student;
     let punchtype = selectedOption.getAttribute('data-punchtype');
@@ -93,12 +99,14 @@ document.getElementById('addNew').addEventListener('click', () => {
 document.getElementById('save').addEventListener('click', () => {
     validateFields(() => {
         if (teamMemberList.selectedIndex > -1) {
-            updateTeamMember(selectedId);
-            displayMessage('updated');
+            updateTeamMember(selectedId, () => {
+                displayInfo('updated');
+            });
         }
         else {
-            addTeamMember();
-            displayMessage('added');
+            addTeamMember(() => {
+                displayInfo('added')
+            });
         }
     });
 });
@@ -130,7 +138,6 @@ function clearFields() {
 }
 
 function validateFields(callback) {
-    //TODO: ? validate email format
     let role = '';
     if (roleMentor.checked)
         role = 'mentor';
@@ -140,18 +147,19 @@ function validateFields(callback) {
         callback();
     }
     else {
-        displayMessage('Error: Missing data');
+        displayInfo('Error: Missing data');
     }
 }
 
-function displayMessage(text) {
+function displayInfo(text) {
     clearTimeout(timer);
-    message.innerText = text;
+    message.innerHTML = text;
     message.classList.remove('fade-out');
     message.classList.add('fade-in');
     timer = setTimeout(() => {
         message.classList.remove('fade-in');
         message.classList.add('fade-out');
+        message.innerHTML = '';
     }, 2500);
 }
 
@@ -164,7 +172,7 @@ function addTeamMember() {
     team.add(firstName.value, lastName.value, email.value, role, (err, id) => {
         if (!err) {
             selectedId = id;
-            //TODO: have the load action display a spinny icon
+            document.getElementById('loading').style.display = 'inline';
             team.load(populateTeamMemberList);
         }
     });
@@ -182,10 +190,19 @@ function updateTeamMember() {
                 clearFields();
                 selectedId = -1;
                 selectedOption = null;
+                teamMemberList.remove(teamMemberList.selectedIndex);
             }
-            //TODO: this took forever after updating a first name, and the main screen didn't update - hrm, it's like the updated didn't even take hold until i tried again
-            //      i think this needs to be blocking - i.e. no more actions until this completes OR just manually update the list entry (remember to update the data attributes)
-            team.load(populateTeamMemberList);
+            else {
+                //a full reload of the list takes too long on RPi - just update the list entry
+                selectedOption.setAttribute('data-firstname', firstName.value);
+                selectedOption.setAttribute('data-lastname', lastName.value);
+                selectedOption.setAttribute('data-role', role);
+                selectedOption.setAttribute('data-active', (active.checked ? '1' : '0'));
+                selectedOption.text = ' ' + (role == 'mentor' ? 'Mentor: ' : '') + lastName.value + ', ' + firstName.value;
+                if (!active.checked) {
+                    selectedOption.text += ' (inactive)';
+                }
+            }
         }
     });
 }
@@ -196,22 +213,30 @@ function deleteTeamMember() {
         if (!err) {
             selectedId = -1;
             selectedOption = null;
-            team.load(populateTeamMemberList);
+            teamMemberList.remove(teamMemberList.selectedIndex);
         }
     });
 }
 
 document.getElementById('clockOutAll').addEventListener('click', () => {
     timeclock.clockOutAll(() => {
-        displayMessage("Clocked out everyone");
+        displayInfo('Clocked out everyone');
     });
 });
 
 document.getElementById('transmitReports').addEventListener('click', () => {
     //TODO: not even sure what type of "reports", except to simply pull data for a given date/time range
-    //TODO: popup date/time range selection
-    //TODO: package and email - confirm connectivity
-    timeclock.generateReport();
+    //      popup date/time range selection
+    timeclock.generateReport((err, reportfile) => {
+        if(!err) {
+            timeclock.sendReport(reportfile, (message) => {
+                displayInfo(message);
+            });
+        }
+        else {
+            displayInfo(`Failed to transmit [${err}]`);
+        }
+    });
 });
 
 teamMemberList.addEventListener('change', () => {

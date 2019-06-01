@@ -1,5 +1,6 @@
 const util = require('./util.js');
 const team = require('./team.js');
+const nodemailer = require('nodemailer');
 
 module.exports = {
     isClockedIn: function (id, callback) {
@@ -35,20 +36,47 @@ module.exports = {
         });
     },
 
-    generateReport: function () {
+    generateReport: function (callback) {
+        //TODO: allow for date/time range
+        const fs = require('fs');
+        let reportfile = `report.${Date.now()}.csv`
         let sql = `SELECT m.*, p.punchtype, p.created as punchtime
                     FROM teammembers as m, punches as p
                     WHERE m.id = p.memberid AND m.active AND NOT m.deleted
                     ORDER BY m.id, p.created`;
         util.dbexec(sql, [], (err, rows) => {
-            rows.forEach((row) => {
-                let punchtype = (row.punchtype == 1 ? 'in' : 'out');
-                let punchtime = new Date(Date.parse(row.punchtime));
-                
-                console.log(`${row.id},${row.lastname},${row.firstname},${row.role},${punchtype},${punchtime.toLocaleDateString()} ${util.formatTime(punchtime)}`);
+            if (!err) {
+                rows.forEach((row) => {
+                    let punchtype = (row.punchtype == 1 ? 'in' : 'out');
+                    let punchtime = new Date(Date.parse(row.punchtime));
 
-                //TODO: write this to a csv file (and email it?)
-            })
+                    fs.appendFileSync(`reports/${reportfile}`, `${row.id},${row.lastname},${row.firstname},${row.role},${punchtype},${punchtime.toLocaleDateString()} ${util.formatTime(punchtime)}\r\n`);
+                });
+            }
+
+            callback(err, reportfile);
+        });
+    },
+
+    sendReport: function (reportfile, callback) {
+        util.checkOnlineStatus((err, online) => {
+            console.log(`online: ${online}`);
+            if (online != 0) {
+                callback(`No internet connectivity.  Attempting to connect and retry every 3 seconds...`);
+                util.connectWifi((retry, maxretries) => {
+                    if (typeof retry == 'undefined') {
+                        sendEmail(reportfile);
+                        callback('Report transmitted');
+                    }
+                    else {
+                        callback(`Retry ${retry} of ${maxretries}...`);
+                    }
+                });
+            }
+            else {
+                util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }]);
+                callback('Report transmitted');
+            }
         });
     }
 }
