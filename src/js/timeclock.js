@@ -36,15 +36,16 @@ module.exports = {
         });
     },
 
-    generateReport: function (callback) {
+    generateReport: function (fromdate, todate, callback) {
         //TODO: allow for date/time range
         const fs = require('fs');
         let reportfile = `report.${Date.now()}.csv`
         let sql = `SELECT m.*, p.punchtype, p.created as punchtime
                     FROM teammembers as m, punches as p
                     WHERE m.id = p.memberid AND m.active AND NOT m.deleted
+                      AND p.created between ? and ?
                     ORDER BY m.id, p.created`;
-        util.dbexec(sql, [], (err, rows) => {
+        util.dbexec(sql, [fromdate.format('YYYY-MM-DD'),todate.format('YYYY-MM-DD')], (err, rows) => {
             if (!err) {
                 rows.forEach((row) => {
                     let punchtype = (row.punchtype == 1 ? 'in' : 'out');
@@ -60,22 +61,27 @@ module.exports = {
 
     sendReport: function (reportfile, callback) {
         util.checkOnlineStatus((err, online) => {
-            console.log(`online: ${online}`);
-            if (online != 0) {
-                callback(`No internet connectivity.  Attempting to connect and retry every 3 seconds...`);
-                util.connectWifi((retry, maxretries) => {
-                    if (typeof retry == 'undefined') {
-                        sendEmail(reportfile);
-                        callback('Report transmitted');
-                    }
-                    else {
-                        callback(`Retry ${retry} of ${maxretries}...`);
-                    }
-                });
+            if(!err) {
+                if (online != 0) {
+                    callback(`No internet connectivity.  Attempting to connect and retry every 3 seconds...`);
+                    util.connectWifi((retry, maxretries) => {
+                        if (typeof retry == 'undefined') {
+                            util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }]);
+                            callback('Report transmitted');
+                        }
+                        else {
+                            callback(`Retry ${retry} of ${maxretries}...`);
+                        }
+                    });
+                }
+                else {
+                    //TODO: there might not be any mentors with email addresses configured - in this case, it will save but not "transmit", so show appropriate message
+                    util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }]);
+                    callback('Report transmitted');
+                }
             }
             else {
-                util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }]);
-                callback('Report transmitted');
+                console.error(err);
             }
         });
     }

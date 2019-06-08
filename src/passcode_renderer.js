@@ -1,6 +1,7 @@
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
-const util = require('./util.js');
+const util = require('./js/util.js');
+window.$ = window.jQuery = require('jquery');
 
 var id;
 var passcode = "";
@@ -40,9 +41,14 @@ function keypress(id, digit) {
                     ipc.send('displaySettings');
                 }
                 else {
-                    reset();
                     container.classList.add('shake');
-                    setTimeout(() => { container.classList.remove('shake'); }, 500);
+                    $('body').css('background-color', 'red');
+                    var audio = new Audio('sounds/accessdenied.wav');
+                    audio.play();
+                    setTimeout(() => {
+                        container.classList.remove('shake');
+                        $('body').css('background-color', '')
+                    }, 500);
                 }
             }
         });

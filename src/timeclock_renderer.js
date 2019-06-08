@@ -1,7 +1,8 @@
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
-const timeclock = require('./timeclock.js');
-const util = require('./util.js');
+const timeclock = require('./js/timeclock.js');
+const util = require('./js/util.js');
+window.$ = window.jQuery = require('jquery');
 
 let teamMemberList = document.getElementById('teamMember');
 let infoMessage = document.getElementById('message');

@@ -171,7 +171,9 @@ module.exports = {
         this.dbexec(sql, [], (err, results) => {
             if (!err) {
                 let recipients = '';
+                console.log(results.length);
                 results.forEach((mentor) => {
+                    console.log(mentor.email);
                     if (recipients.length > 0) {
                         recipients += ',';
                     }
@@ -198,6 +200,9 @@ module.exports = {
                         }
                     });
                 }
+            }
+            else {
+                console.error(err);
             }
         });
     }

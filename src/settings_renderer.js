@@ -1,9 +1,12 @@
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
 const { dialog } = require('electron').remote
-const team = require('./team.js');
-const util = require('./util.js');
-const timeclock = require('./timeclock.js');
+const team = require('./js/team.js');
+const util = require('./js/util.js');
+const timeclock = require('./js/timeclock.js');
+window.$ = window.jQuery = require('jquery');
+window.Bootstrap = require('bootstrap');
+const datepicker = require('tempusdominus-bootstrap-4');
 
 let teamMemberList = document.getElementById('teamMember');
 let firstName = document.getElementById('firstname');
@@ -12,7 +15,7 @@ let active = document.getElementById('active');
 let roleStudent = document.getElementById('student');
 let roleMentor = document.getElementById('mentor');
 
-let timer;
+let messageTimer;
 let selectedId;
 let selectedOption;
 
@@ -35,6 +38,7 @@ function populateTeamMemberList(teamMembers) {
             option.value = member.id;
             option.setAttribute('data-firstname', member.firstname);
             option.setAttribute('data-lastname', member.lastname);
+            option.setAttribute('data-email', member.email);
             option.setAttribute('data-role', member.role);
             option.setAttribute('data-active', member.active);
             option.setAttribute('data-punchtype', member.punchtype);
@@ -56,6 +60,7 @@ function populateTeamMemberList(teamMembers) {
 function populateDetails() {
     firstName.value = selectedOption.getAttribute('data-firstname');
     lastName.value = selectedOption.getAttribute('data-lastname');
+    email.value = selectedOption.getAttribute('data-email');
     if (selectedOption.getAttribute('data-active') == 1) {
         active.checked = true;
     }
@@ -67,11 +72,11 @@ function populateDetails() {
     roleMentor.checked = !student;
     let punchtype = selectedOption.getAttribute('data-punchtype');
     if (punchtype == 'null') {
-        document.getElementById('lastPunch').innerText = 'Has never clocked in';
+        document.getElementById('lastPunch').innerText = firstName.value + ' has never clocked in';
     }
     else {
         let punchtime = new Date(Date.parse(selectedOption.getAttribute('data-punchtime')));
-        let message = `Last clocked ${(punchtype == '0' ? 'out' : 'in')} ${punchtime.toLocaleDateString()} ${util.formatTime(punchtime)}`;
+        let message = `${firstName.value} last clocked ${(punchtype == '0' ? 'out' : 'in')} ${punchtime.toLocaleDateString()} ${util.formatTime(punchtime)}`;
         document.getElementById('lastPunch').innerText = message;
     }
 }
@@ -100,12 +105,12 @@ document.getElementById('save').addEventListener('click', () => {
     validateFields(() => {
         if (teamMemberList.selectedIndex > -1) {
             updateTeamMember(selectedId, () => {
-                displayInfo('updated');
+                displayMessage('updated');
             });
         }
         else {
             addTeamMember(() => {
-                displayInfo('added')
+                displayMessage('added')
             });
         }
     });
@@ -135,6 +140,8 @@ function clearFields() {
     roleMentor.checked = false;
     active.checked = true;
     document.getElementById('lastPunch').innerText = '';
+    document.getElementById('delete').style.borderColor = "grey";
+    document.getElementById('delete').style.color = "grey";
 }
 
 function validateFields(callback) {
@@ -147,20 +154,18 @@ function validateFields(callback) {
         callback();
     }
     else {
-        displayInfo('Error: Missing data');
+        displayMessage('Error: Missing data');
     }
 }
 
-function displayInfo(text) {
-    clearTimeout(timer);
-    message.innerHTML = text;
-    message.classList.remove('fade-out');
-    message.classList.add('fade-in');
-    timer = setTimeout(() => {
-        message.classList.remove('fade-in');
-        message.classList.add('fade-out');
-        message.innerHTML = '';
-    }, 2500);
+function displayMessage(text) {
+    clearTimeout(messageTimer);
+    document.getElementById('message').innerHTML = text;
+    $("#message").fadeIn(500, "linear", () => {
+        messageTimer = setTimeout(() => {
+            $("#message").fadeOut(2000, "linear");
+        }, 2500);
+    });
 }
 
 function addTeamMember() {
@@ -196,6 +201,7 @@ function updateTeamMember() {
                 //a full reload of the list takes too long on RPi - just update the list entry
                 selectedOption.setAttribute('data-firstname', firstName.value);
                 selectedOption.setAttribute('data-lastname', lastName.value);
+                selectedOption.setAttribute('data-email', email.value);
                 selectedOption.setAttribute('data-role', role);
                 selectedOption.setAttribute('data-active', (active.checked ? '1' : '0'));
                 selectedOption.text = ' ' + (role == 'mentor' ? 'Mentor: ' : '') + lastName.value + ', ' + firstName.value;
@@ -220,21 +226,23 @@ function deleteTeamMember() {
 
 document.getElementById('clockOutAll').addEventListener('click', () => {
     timeclock.clockOutAll(() => {
-        displayInfo('Clocked out everyone');
+        displayMessage('Clocked out everyone');
     });
 });
 
 document.getElementById('transmitReports').addEventListener('click', () => {
     //TODO: not even sure what type of "reports", except to simply pull data for a given date/time range
     //      popup date/time range selection
-    timeclock.generateReport((err, reportfile) => {
+    var fromdate = $('#datetimepicker1').datetimepicker('viewDate');
+    var todate  = $('#datetimepicker2').datetimepicker('viewDate');
+    timeclock.generateReport(fromdate, todate.add({days:1}), (err, reportfile) => {
         if(!err) {
-            timeclock.sendReport(reportfile, (message) => {
-                displayInfo(message);
-            });
+            // timeclock.sendReport(reportfile, (message) => {
+            //     displayMessage(message);
+            // });
         }
         else {
-            displayInfo(`Failed to transmit [${err}]`);
+            displayMessage(`Failed to transmit [${err}]`);
         }
     });
 });
@@ -243,6 +251,8 @@ teamMemberList.addEventListener('change', () => {
     if (teamMemberList.selectedIndex > -1) {
         selectedId = teamMemberList.value;
         selectedOption = teamMemberList[teamMemberList.selectedIndex];
+        document.getElementById('delete').style.borderColor = "red";
+        document.getElementById('delete').style.color = "red";
     }
     else {
         selectedId = -1;

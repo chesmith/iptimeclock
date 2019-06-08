@@ -10,8 +10,22 @@
         "windows": {
           "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
         },
-        "args" : ["."],
-        "outputCapture": "std"
+        "program": "${workspaceRoot}/src/main.js",
+        "protocol": "inspector"
+      },
+      {
+        "name": "Debug Renderer Process",
+        "type": "chrome",
+        "request": "launch",
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+        "windows": {
+          "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+        },
+        "runtimeArgs": [
+          "${workspaceRoot}/src/main.js",
+          "--remote-debugging-port=9222"
+        ],
+        "webRoot": "${workspaceRoot}"
       }
     ]
   }

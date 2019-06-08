@@ -1,84 +1,154 @@
 <html>
 
 <head>
-    <link rel="stylesheet" href="settings.css" />
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" />
+    <script type="text/javascript" src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../node_modules/moment/min/moment.min.js"></script>
+    <link rel="stylesheet" href="../node_modules/tempusdominus-bootstrap-4/build/css/tempusdominus-bootstrap-4.min.css" />
+    <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="css/settings.css" />
 </head>
 
 <body style="background: #333; color: white;">
-    <div id="header">Manage Team Members</div>
+    <div id="header">Administration</div>
     <div id="close">X</div>
     <div id="container">
-        <select id="teamMember" size="17"></select>
-        <div id="showInactiveDiv"><input type="checkbox" id="showInactive" class="css-checkbox"><label for="showInactive" class="css-label">Show inactive team members</label></div>
-        <div id="details">
-            <table>
-                <tr>
-                    <td colspan="3">
-                        <div style="display:flex; justify-content: space-between"><div id="addNew" class="btn">+ Add Team Member</div><div style="float:right"><img id="loading" src="loading.gif" style="display:none"></div></div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="3" style="height: 10px"></td>
-                </tr>
-                <tr>
-                    <td><label for="firstname">First Name<sup>*</sup></label></td>
-                    <td>&nbsp;</td>
-                    <td><input id="firstname" type="text"></td>
-                </tr>
-                <tr>
-                    <td><label for="lastname">Last Name<sup>*</sup></label></td>
-                    <td>&nbsp;</td>
-                    <td><input id="lastname" type="text"></td>
-                </tr>
-                <tr>
-                    <td colspan="3" style="height: 5px"></td>
-                </tr>
-                <tr>
-                    <td><label for="email">Email</label></td>
-                    <td>&nbsp;</td>
-                    <td><input id="email" type="text"></td>
-                </tr>
-                <tr>
-                    <td colspan="3" style="height: 5px"></td>
-                </tr>
-                <tr>
-                    <td><label for="role2">Role<sup>*</sup></label></td>
-                    <td>&nbsp;</td>
-                    <td>
-                        <input type="radio" name="role" id="student" class="css-radio"><label for="student" class="css-label-radio">Student</label>&nbsp;&nbsp;
-                        <input type="radio" name="role" id="mentor" class="css-radio"><label for="mentor" class="css-label-radio">Mentor</label>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="3" style="height: 5px"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"></td>
-                    <td><input id="active" type="checkbox" class="css-checkbox" checked><label for="active" class="css-label">Active</label></td>
-                </tr>
-                <tr>
-                    <td colspan="3" style="height: 10px"></td>
-                </tr>
-                <tr>
-                    <td>
-                        <div id="delete" class="btn" style="border: 1px solid red; color: red">Remove</div>
-                    </td>
-                    <td>&nbsp;</td>
-                    <td style="text-align: right">
-                        <div class="btn" id="save">Save</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="3"><div id="lastPunch" style="text-align: right"></div><div id="message" style="text-align: right"></div></td>
-                </tr>
-            </table>
+        <ul id="nav" class="nav nav-tabs">
+            <li class="nav-item">
+                <div class="nav-link active" id="team-tab" data-toggle="tab" href="#team" role="tab">Team Members</div>
+            </li>
+            <li class="nav-item">
+                <div class="nav-link" id="reports-tab" data-toggle="tab" href="#reports" role="tab">Reports</div>
+            </li>
+        </ul>
+        <div id="messages">
+            <div id="lastPunch" style="text-align: right">lastPunch</div>
+            <div id="message" style="text-align: right"></div>
         </div>
-        <div style="display: flex; justify-content: space-between; width: 316px" id="bulkActions">
-            <div id="clockOutAll" class="btn">Clock Out All</div>
-            <div id="transmitReports" class="btn">Transmit Reports</div>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="team" role="tabpanel">
+                <div id="teamMemberList">
+                    <select id="teamMember" size="13"></select>
+                    <br/>
+                    <input type="checkbox" id="showInactive" class="css-checkbox"><label for="showInactive" class="css-label">Show inactive team members</label>
+               </div>
+                <div id="details">
+                    <table style="width:100%">
+                        <tr>
+                            <td colspan="3">
+                                <div style="display:flex; justify-content: space-between">
+                                    <div id="addNew" class="button">+ Add Team Member</div>
+                                    <div style="float:right"><img id="loading" src="images/loading.gif" style="display:none"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 10px"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="firstname">First Name<sup>*</sup></label></td>
+                            <td>&nbsp;</td>
+                            <td><input id="firstname" type="text"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="lastname">Last Name<sup>*</sup></label></td>
+                            <td>&nbsp;</td>
+                            <td><input id="lastname" type="text"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 5px"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="email">Email</label></td>
+                            <td>&nbsp;</td>
+                            <td><input id="email" type="text"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 5px"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="role2">Role<sup>*</sup></label></td>
+                            <td>&nbsp;</td>
+                            <td>
+                                <input type="radio" name="role" id="student" class="css-radio"><label for="student" class="css-label-radio">Student</label>&nbsp;&nbsp;
+                                <input type="radio" name="role" id="mentor" class="css-radio"><label for="mentor" class="css-label-radio">Mentor</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 5px"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"></td>
+                            <td><input id="active" type="checkbox" class="css-checkbox" checked><label for="active" class="css-label">Active</label></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" style="height: 10px"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div id="delete" class="button" style="border: 1px solid grey; color: grey">Remove</div>
+                            </td>
+                            <td>&nbsp;</td>
+                            <td style="text-align: right">
+                                <div class="button" id="save">Save</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <div id="clockOutAll" class="button">Clock Out All</div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="reports" role="tabpanel">
+                    <div class="form-group" style="display: flex">
+                        <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
+                            <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker1"/>
+                            <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                        <div style="font-size:18px">&nbsp;to&nbsp;</div>
+                        <div class="input-group date" id="datetimepicker2" data-target-input="nearest">
+                            <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker2"/>
+                            <div class="input-group-append" data-target="#datetimepicker2" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="transmitReports" class="button" style="position: relative">Transmit Reports</div>
+            </div>
         </div>
     </div>
 </body>
 <script>require('./settings_renderer.js')</script>
+<script type="text/javascript">
+    $(function () {
+        $('#datetimepicker1').datetimepicker({
+            allowInputToggle: true,
+            format: 'l',
+            buttons: {
+                showToday: true
+            }
+        });
+        $('#datetimepicker2').datetimepicker({
+            useCurrent: false,
+            allowInputToggle: true,
+            format: 'l',
+            buttons: {
+                showToday: true
+            }
+        });
+        $("#datetimepicker1").on("change.datetimepicker", function (e) {
+            $('#datetimepicker2').datetimepicker('minDate', e.date);
+        });
+        $("#datetimepicker2").on("change.datetimepicker", function (e) {
+            $('#datetimepicker1').datetimepicker('maxDate', e.date);
+        });
+    });
 
+    var audio = new Audio('sounds/buttonclick.wav');
+    $('.button').click(() => audio.play());
+</script>
 </html>

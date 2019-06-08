@@ -1,6 +1,7 @@
 <html>
     <head>
-        <link rel="stylesheet" href="passcode.css" />
+        <script type="text/javascript" src="../node_modules/jquery/dist/jquery.min.js"></script>
+        <link rel="stylesheet" href="css/passcode.css" />
     </head>
     <body>
         <div id="container">
@@ -13,4 +14,8 @@
         </div>
     </body>
     <script>require('./passcode_renderer.js')</script>
+    <script type="text/javascript">
+        var audio = new Audio('sounds/buttonclick.wav');
+        $('.btn').click(() => audio.play());
+    </script>
 </html>

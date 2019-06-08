@@ -1,19 +1,24 @@
 <html>
     <head>
-        <link rel="stylesheet" href="timeclock.css" />
+        <script type="text/javascript" src="../node_modules/jquery/dist/jquery.min.js"></script>
+        <link rel="stylesheet" href="css/timeclock.css" />
     </head>
     <body>
-        <img src="ip.png" id="iplogo">
+        <img src="images/ip.png" id="iplogo">
         <div id="container">
             <div id="clock"><div id="hour"></div><div id="colon" style="color:black">:</div><div id="minute"></div></div>
             <select id="teamMember" size="9"></select>
-            <div class="btn" id="clockIn" style="background: rgba(255,0,0,0.85);">Clock In<p><img src="in.png"></p></div>
-            <div class="btn" id="clockOut" style="background: rgba(0,0,255,0.85)">Clock Out<p><img src="out.png"></p></div>
+            <div class="btn" id="clockIn" style="background: rgba(255,0,0,0.85);">Clock In<p><img src="images/in.png"></p></div>
+            <div class="btn" id="clockOut" style="background: rgba(0,0,255,0.85)">Clock Out<p><img src="images/out.png"></p></div>
         </div>
-        <img id="settings" src="settings.jpg">
+        <img id="settings" src="images/settings.jpg">
         <div id="alert"></div>
         <div id="message"></div>
         <div id="online">.</div>
     </body>
     <script>require('./timeclock_renderer.js')</script>
+    <script type="text/javascript">
+        var audio = new Audio('sounds/buttonclick.wav');
+        $('.btn').click(() => audio.play());
+    </script>
 </html>

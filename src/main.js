@@ -1,8 +1,7 @@
 const electron = require('electron');
 
-const clock = require('./clock.js');
-const team = require('./team.js');
-const util = require('./util.js');
+const clock = require('./js/clock.js');
+const team = require('./js/team.js');
 
 const os = require('os');
 
