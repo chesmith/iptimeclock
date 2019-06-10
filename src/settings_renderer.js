@@ -9,11 +9,6 @@ window.Bootstrap = require('bootstrap');
 const datepicker = require('tempusdominus-bootstrap-4');
 
 let teamMemberList = document.getElementById('teamMember');
-let firstName = document.getElementById('firstname');
-let lastName = document.getElementById('lastname');
-let active = document.getElementById('active');
-let roleStudent = document.getElementById('student');
-let roleMentor = document.getElementById('mentor');
 
 let messageTimer;
 let selectedId;
@@ -30,10 +25,9 @@ ipc.on('reset', (evt) => {
 });
 
 function populateTeamMemberList(teamMembers) {
-    let showInactive = document.getElementById('showInactive').checked;
     teamMemberList.options.length = 0;
     teamMembers.forEach((member) => {
-        if (member.active || showInactive) {
+        if (member.active || $('#showInactive').prop('checked')) {
             option = document.createElement('option');
             option.value = member.id;
             option.setAttribute('data-firstname', member.firstname);
@@ -54,54 +48,54 @@ function populateTeamMemberList(teamMembers) {
         teamMemberList.value = selectedId;
         selectedOption = teamMemberList[teamMemberList.selectedIndex];
     }
-    document.getElementById('loading').style.display = 'none';
+    $('#loading').css('display', 'none');
 }
 
 function populateDetails() {
-    firstName.value = selectedOption.getAttribute('data-firstname');
-    lastName.value = selectedOption.getAttribute('data-lastname');
-    email.value = selectedOption.getAttribute('data-email');
+    $('#firstname').val(selectedOption.getAttribute('data-firstname'));
+    $('#lastname').val(selectedOption.getAttribute('data-lastname'));
+    $('#email').val(selectedOption.getAttribute('data-email'));
     if (selectedOption.getAttribute('data-active') == 1) {
-        active.checked = true;
+        $('#active').prop('checked', true);
     }
     else {
-        active.checked = false;
+        $('#active').prop('checked', false);
     }
     let student = (selectedOption.getAttribute('data-role') == 'student');
-    roleStudent.checked = student;
-    roleMentor.checked = !student;
+    $('#roleStudent').prop('checked', student);
+    $('#roleMentor').prop('checked', !student);
     let punchtype = selectedOption.getAttribute('data-punchtype');
     if (punchtype == 'null') {
-        document.getElementById('lastPunch').innerText = firstName.value + ' has never clocked in';
+        $('#lastPunch').text(`${$('#firstname').val()} has never clocked in`);
     }
     else {
         let punchtime = new Date(Date.parse(selectedOption.getAttribute('data-punchtime')));
-        let message = `${firstName.value} last clocked ${(punchtype == '0' ? 'out' : 'in')} ${punchtime.toLocaleDateString()} ${util.formatTime(punchtime)}`;
-        document.getElementById('lastPunch').innerText = message;
+        let message = `${$('#firstname').val()} last clocked ${(punchtype == '0' ? 'out' : 'in')} ${punchtime.toLocaleDateString()} ${util.formatTime(punchtime)}`;
+        $('#lastPunch').text(message);
     }
 }
 
-document.getElementById('close').addEventListener('click', () => {
+$('#close').click( () => {
     ipc.send('reloadTeam');
     electron.remote.getCurrentWindow().hide();
 });
 
-document.getElementById('showInactive').addEventListener('change', () => {
-    if (selectedId > -1 && !document.getElementById('showInactive').checked && selectedOption.getAttribute('data-active') == 0) {
+$('#showInactive').change( () => {
+    if (selectedId > -1 && !$('#showInactive').prop('checked') && selectedOption.getAttribute('data-active') == 0) {
         clearFields();
         selectedId = -1;
     }
     team.load(populateTeamMemberList);
 });
 
-document.getElementById('addNew').addEventListener('click', () => {
+$('#addNew').click( () => {
     teamMemberList.selectedIndex = -1;
     selectedId = -1;
     selectedOption = null;
     clearFields();
 });
 
-document.getElementById('save').addEventListener('click', () => {
+$('#save').click( () => {
     validateFields(() => {
         if (teamMemberList.selectedIndex > -1) {
             updateTeamMember(selectedId, () => {
@@ -116,7 +110,7 @@ document.getElementById('save').addEventListener('click', () => {
     });
 });
 
-document.getElementById('delete').addEventListener('click', () => {
+$('#delete').click( () => {
     let options = {
         type: 'question',
         buttons: ['Yes', 'No'],
@@ -133,24 +127,23 @@ document.getElementById('delete').addEventListener('click', () => {
 });
 
 function clearFields() {
-    firstName.value = '';
-    lastName.value = '';
-    email.value = '';
-    roleStudent.checked = false;
-    roleMentor.checked = false;
-    active.checked = true;
-    document.getElementById('lastPunch').innerText = '';
-    document.getElementById('delete').style.borderColor = "grey";
-    document.getElementById('delete').style.color = "grey";
+    $('#firstname').val('');
+    $('#lastname').val('');
+    $('#email').val('');
+    $('#roleStudent').prop('checked', false);
+    $('#roleMentor').prop('checked', false);
+    $('#active').prop('checked', true);
+    $('#lastPunch').text('');
+    $('#delete').css({'border-color': 'grey', 'color': 'grey'});
 }
 
 function validateFields(callback) {
     let role = '';
-    if (roleMentor.checked)
+    if ($('#roleMentor').prop('checked'))
         role = 'mentor';
-    else if (roleStudent.checked)
+    else if ($('#roleStudent').prop('checked'))
         role = 'student';
-    if (firstName.value.length > 0 && lastName.value.length > 0 && role.length > 0) {
+    if ($('#firstname').val().length > 0 && $('#lastname').val().length > 0 && role.length > 0) {
         callback();
     }
     else {
@@ -160,7 +153,7 @@ function validateFields(callback) {
 
 function displayMessage(text) {
     clearTimeout(messageTimer);
-    document.getElementById('message').innerHTML = text;
+    $('#message').html(text);
     $("#message").fadeIn(500, "linear", () => {
         messageTimer = setTimeout(() => {
             $("#message").fadeOut(2000, "linear");
@@ -170,14 +163,14 @@ function displayMessage(text) {
 
 function addTeamMember() {
     let role = '';
-    if (roleMentor.checked)
+    if ($('#roleMentor').prop('checked'))
         role = 'mentor';
-    else if (roleStudent.checked)
+    else if ($('#roleStudent').prop('checked'))
         role = 'student';
-    team.add(firstName.value, lastName.value, email.value, role, (err, id) => {
+    team.add($('#firstname').val(), $('#lastname').val(), $('#email').val(), role, (err, id) => {
         if (!err) {
             selectedId = id;
-            document.getElementById('loading').style.display = 'inline';
+            $('#loading').css('display', 'inline');
             team.load(populateTeamMemberList);
         }
     });
@@ -185,13 +178,13 @@ function addTeamMember() {
 
 function updateTeamMember() {
     let role = '';
-    if (roleMentor.checked)
+    if ($('#roleMentor').prop('checked'))
         role = 'mentor';
-    else if (roleStudent.checked)
+    else if ($('#roleStudent').prop('checked'))
         role = 'student';
-    team.update(selectedId, firstName.value, lastName.value, email.value, role, active.checked, (err) => {
+    team.update(selectedId, $('#firstname').val(), $('#lastname').val(), $('#email').val(), role, $('#active').prop('checked'), (err) => {
         if (!err) {
-            if (!active.checked && !document.getElementById('showInactive').checked) {
+            if (!$('#active').prop('checked') && !$('#showInactive').prop('checked')) {
                 clearFields();
                 selectedId = -1;
                 selectedOption = null;
@@ -199,13 +192,13 @@ function updateTeamMember() {
             }
             else {
                 //a full reload of the list takes too long on RPi - just update the list entry
-                selectedOption.setAttribute('data-firstname', firstName.value);
-                selectedOption.setAttribute('data-lastname', lastName.value);
-                selectedOption.setAttribute('data-email', email.value);
+                selectedOption.setAttribute('data-firstname', $('#firstname').val());
+                selectedOption.setAttribute('data-lastname', $('#lastname').val());
+                selectedOption.setAttribute('data-email', $('#email').val());
                 selectedOption.setAttribute('data-role', role);
-                selectedOption.setAttribute('data-active', (active.checked ? '1' : '0'));
-                selectedOption.text = ' ' + (role == 'mentor' ? 'Mentor: ' : '') + lastName.value + ', ' + firstName.value;
-                if (!active.checked) {
+                selectedOption.setAttribute('data-active', ($('#active').prop('checked') ? '1' : '0'));
+                selectedOption.text = ` ${(role == 'mentor' ? 'Mentor: ' : '')}${$('#lastname').val()}, ${$('#firstname').val()}`;
+                if (!$('#active').prop('checked')) {
                     selectedOption.text += ' (inactive)';
                 }
             }
@@ -224,22 +217,57 @@ function deleteTeamMember() {
     });
 }
 
-document.getElementById('clockOutAll').addEventListener('click', () => {
+$('#clockOutAll').click( () => {
     timeclock.clockOutAll(() => {
         displayMessage('Clocked out everyone');
     });
 });
 
-document.getElementById('transmitReports').addEventListener('click', () => {
-    //TODO: not even sure what type of "reports", except to simply pull data for a given date/time range
-    //      popup date/time range selection
-    var fromdate = $('#datetimepicker1').datetimepicker('viewDate');
-    var todate  = $('#datetimepicker2').datetimepicker('viewDate');
-    timeclock.generateReport(fromdate, todate.add({days:1}), (err, reportfile) => {
+$('input[name=timeframe]').change(() => {
+    //clear the fields first - some issue prevents the control from updating properly without this
+    $('#datetimepicker1').datetimepicker('date', null);
+    $('#datetimepicker2').datetimepicker('date', null);
+
+    var selection = $("input[name=timeframe]:checked").val();
+    var start = moment();
+    var end = moment();
+    switch (selection) {
+        case 'thisweek':
+            start = moment().startOf('week');
+            end = moment(start).endOf('week');
+            break;
+        case 'lastweek':
+            start = moment().startOf('week').add(-7, 'days');
+            end = moment(start).endOf('week');
+            break;
+        case 'thismonth':
+            end = moment().endOf('month');
+            start = moment(end).startOf('month');
+            break;
+        case 'lastmonth':
+            end = moment().startOf('month').add(-1, 'days');
+            start = moment(end).startOf('month');
+            break;
+        case 'customrange':
+            start = null;
+            end = null;
+            break;
+    }
+
+    $('#datetimepicker1').datetimepicker('date', start);
+    $('#datetimepicker2').datetimepicker('date', end);
+
+    $('#onscreenreport').html('');
+});
+
+$('#transmitReport').click( () => {
+    var fromdate = $('#datetimepicker1').datetimepicker('date');
+    var todate  = $('#datetimepicker2').datetimepicker('date');
+    timeclock.generateReport(fromdate, todate, (err, reportfile) => {
         if(!err) {
-            // timeclock.sendReport(reportfile, (message) => {
-            //     displayMessage(message);
-            // });
+            timeclock.sendReport(reportfile, (message) => {
+                displayMessage(message);
+            });
         }
         else {
             displayMessage(`Failed to transmit [${err}]`);
@@ -247,12 +275,17 @@ document.getElementById('transmitReports').addEventListener('click', () => {
     });
 });
 
-teamMemberList.addEventListener('change', () => {
+$('#displayReport').click( () => {
+    var fromdate = $('#datetimepicker1').datetimepicker('viewDate');
+    var todate  = $('#datetimepicker2').datetimepicker('viewDate');
+    timeclock.displaySummaryReport(fromdate, todate, '#onscreenreport');
+});
+
+$('#teamMember').change( () => {
     if (teamMemberList.selectedIndex > -1) {
         selectedId = teamMemberList.value;
         selectedOption = teamMemberList[teamMemberList.selectedIndex];
-        document.getElementById('delete').style.borderColor = "red";
-        document.getElementById('delete').style.color = "red";
+        $('#delete').css({'border-color': 'red', 'color': 'red'});
     }
     else {
         selectedId = -1;

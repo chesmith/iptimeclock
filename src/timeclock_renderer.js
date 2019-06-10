@@ -7,30 +7,44 @@ window.$ = window.jQuery = require('jquery');
 let teamMemberList = document.getElementById('teamMember');
 let infoMessage = document.getElementById('message');
 let alertMessage = document.getElementById('alert');
+
 let timerMessage;
 
+//maintain an indicator (small dot, lower right corner) of online/offline status
 setInterval(() => {
     util.checkOnlineStatus((err, online) => {
         let color;
-        console.table([[`err`,`${err}`], [`online status`,`${online}`]]);
+        // console.table([[`err`,`${err}`], [`online status`,`${online}`]]);
         switch(online) {
             case 0: color = 'white'; break;
             case 2: case 3: color = 'orange'; break;
             default: color = 'red'
         }
-        document.getElementById('online').style.color = color;
+        $('#online').css('color', color);
     });
 }, 2500);
 
-teamMemberList.addEventListener('change', () => {
+//handles clock updates sent by main.js
+ipc.on('displayClock', (evt, currentHour, currentMinute, ampm, blink) => {
+    $('#hour').html(currentHour);
+    $('#minute').html(currentMinute + ' ' + ampm);
+    if (blink)
+        $('#colon').css('color', 'black');
+    else
+        $('#colon').css('color', 'white');
+});
+
+//show the settings icon/button only for mentors
+$('#teamMember').change( () => {
     let role = teamMemberList.options[teamMemberList.selectedIndex].getAttribute('data-role');
     showSettings(role == 'mentor');
 
+    //send the team member ID to the passcode entry, so we can uniquely check passcode against the member record
     ipc.send('set-id', teamMemberList.value);
 });
 
 function showSettings(enable) {
-    document.getElementById('settings').style.opacity = (enable ? '1' : '0');
+    $('#settings').css('opacity', (enable ? '1' : '0'));
 }
 
 function displayInfo(text) {
@@ -55,7 +69,8 @@ function clearAlert() {
     alertMessage.classList.remove('fade-bounce');
 }
 
-document.getElementById('clockIn').addEventListener('click', () => {
+//clock in the team member, only if currently clocked out (alternate approach is to log a clock-in record regardless)
+$('#clockIn').click( () => {
     let selectedIndex = teamMemberList.selectedIndex;
     if (selectedIndex == -1) {
         displayInfo('Please select a team member first');
@@ -81,7 +96,8 @@ document.getElementById('clockIn').addEventListener('click', () => {
     });
 });
 
-document.getElementById('clockOut').addEventListener('click', () => {
+//clock out the team member, only if currently clocked in (alternate approach is to log a clock-out record regardless)
+$('#clockOut').click( () => {
     let selectedIndex = teamMemberList.selectedIndex;
     if (selectedIndex == -1) {
         displayInfo('Please select a team member first');
@@ -105,15 +121,7 @@ document.getElementById('clockOut').addEventListener('click', () => {
     });
 });
 
-ipc.on('displayClock', (evt, currentHour, currentMinute, ampm, blink) => {
-    document.getElementById('hour').innerHTML = currentHour;
-    document.getElementById('minute').innerHTML = currentMinute + ' ' + ampm;
-    if (blink)
-        document.getElementById('colon').style.color = "black";
-    else
-        document.getElementById('colon').style.color = "white";
-});
-
+//reload the team - currently, signal received from main.js on initial launch or when another window asks to reload
 ipc.on('loadTeam', (evt, teamMembers) => {
     teamMemberList.options.length = 0;
     teamMembers.forEach((member) => {
@@ -135,7 +143,8 @@ ipc.on('loadTeam', (evt, teamMembers) => {
     });
 });
 
-document.getElementById('settings').addEventListener('click', () => {
+//show the passcode window - only allow mentors to access
+$('#settings').click( () => {
     if (teamMemberList.selectedIndex > -1) {
         let role = teamMemberList.options[teamMemberList.selectedIndex].getAttribute('data-role');
         if (role == 'mentor') {

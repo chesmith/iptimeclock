@@ -3,32 +3,25 @@ const ipc = electron.ipcRenderer;
 const util = require('./js/util.js');
 window.$ = window.jQuery = require('jquery');
 
-var id;
-var passcode = "";
+var teamMemberId;
+var passcode = '';
 
-var container = document.getElementById('container');
-
-document.getElementById('close').addEventListener('click', () => {
+//currently, only hide/show the window - don't destroy and recreate each time
+$('#close').click( () => {
     electron.remote.getCurrentWindow().hide();
 });
 
-document.getElementById('backspace').addEventListener('click', () => {
+$('#backspace').click( () => {
     if (passcode.length > 0) {
         passcode = passcode.substring(0, passcode.length - 1);
         updateDisplay();
     }
 });
 
-document.getElementById('1').addEventListener('click', () => { keypress(this.id, '1') });
-document.getElementById('2').addEventListener('click', () => { keypress(this.id, '2') });
-document.getElementById('3').addEventListener('click', () => { keypress(this.id, '3') });
-document.getElementById('4').addEventListener('click', () => { keypress(this.id, '4') });
-document.getElementById('5').addEventListener('click', () => { keypress(this.id, '5') });
-document.getElementById('6').addEventListener('click', () => { keypress(this.id, '6') });
-document.getElementById('7').addEventListener('click', () => { keypress(this.id, '7') });
-document.getElementById('8').addEventListener('click', () => { keypress(this.id, '8') });
-document.getElementById('9').addEventListener('click', () => { keypress(this.id, '9') });
-document.getElementById('0').addEventListener('click', () => { keypress(this.id, '0') });
+//triggered on any numeric keypress, as those are the only ones prefixed with "key"
+$('[id^=key]').click( (event) => {
+    keypress(teamMemberId, event.target.id.substring(3));
+});
 
 function keypress(id, digit) {
     passcode += digit;
@@ -41,12 +34,12 @@ function keypress(id, digit) {
                     ipc.send('displaySettings');
                 }
                 else {
-                    container.classList.add('shake');
+                    $('#container').addClass('shake');
                     $('body').css('background-color', 'red');
                     var audio = new Audio('sounds/accessdenied.wav');
                     audio.play();
                     setTimeout(() => {
-                        container.classList.remove('shake');
+                        $('#container').removeClass('shake');
                         $('body').css('background-color', '')
                     }, 500);
                 }
@@ -61,12 +54,13 @@ function reset() {
 }
 
 function updateDisplay() {
-    document.getElementById('disp1').innerHTML = (passcode.length > 0 ? '&middot;' : '');
-    document.getElementById('disp2').innerHTML = (passcode.length > 1 ? '&middot;' : '');
-    document.getElementById('disp3').innerHTML = (passcode.length > 2 ? '&middot;' : '');
-    document.getElementById('disp4').innerHTML = (passcode.length > 3 ? '&middot;' : '');
+    $('#disp1').html((passcode.length > 0 ? '&middot;' : ''));
+    $('#disp2').html((passcode.length > 1 ? '&middot;' : ''));
+    $('#disp3').html((passcode.length > 2 ? '&middot;' : ''));
+    $('#disp4').html((passcode.length > 3 ? '&middot;' : ''));
 }
 
+//leveraged by main view to set the ID of the member trying to login
 ipc.on('set-id', (evt, id) => {
-    this.id = id;
+    teamMemberId = id;
 });

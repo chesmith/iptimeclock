@@ -167,13 +167,11 @@ module.exports = {
             auth: { user: '***REMOVED***', pass: '***REMOVED***' }
         });
 
-        let sql = `select * from teammembers where role = 'mentor' AND active AND LENGTH(IFNULL(email,'')) > 0;`;
+        let sql = `SELECT * FROM teammembers WHERE role = 'mentor' AND active AND LENGTH(IFNULL(email,'')) > 0;`;
         this.dbexec(sql, [], (err, results) => {
             if (!err) {
                 let recipients = '';
-                console.log(results.length);
                 results.forEach((mentor) => {
-                    console.log(mentor.email);
                     if (recipients.length > 0) {
                         recipients += ',';
                     }
@@ -196,7 +194,7 @@ module.exports = {
                             console.warn(`send email failure: ${err}`);
                         }
                         else {
-                            console.log('email success');
+                            console.info('email success');
                         }
                     });
                 }
