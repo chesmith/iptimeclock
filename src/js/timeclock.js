@@ -6,8 +6,8 @@ module.exports = {
     isClockedIn: function (id, callback) {
         let sql = 'SELECT * FROM punches WHERE memberid = ? ORDER BY id DESC';
         util.dbexec(sql, [id], (err, rows) => {
-            let clockedIn = (rows.length > 0 && rows[0].punchtype == 1);
-            callback(clockedIn);
+            let clockedIn = (!err && rows.length > 0 && rows[0].punchtype == 1);
+            callback(err, clockedIn);
         });
     },
 
@@ -64,25 +64,25 @@ module.exports = {
         });
     },
 
-    sendReport: function (reportfile, callback) {
+    sendReport: function (reportfile, displayMessage) {
         util.checkOnlineStatus((err, online) => {
             if (!err) {
                 if (online != 0) {
-                    callback(`No internet connectivity.  Attempting to connect and retry every 3 seconds...`);
+                    displayMessage(`No internet connectivity.  Attempting to connect and retry every 3 seconds...`);
                     util.connectWifi((retry, maxretries) => {
                         if (typeof retry == 'undefined') {
                             util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }]);
-                            callback('Report transmitted');
+                            displayMessage('Report transmitted');
                         }
                         else {
-                            callback(`Retry ${retry} of ${maxretries}...`);
+                            displayMessage(`Retry ${retry} of ${maxretries}...`);
                         }
                     });
                 }
                 else {
                     //TODO: there might not be any mentors with email addresses configured - in this case, it will save but not "transmit", so show appropriate message
                     util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }]);
-                    callback('Report transmitted');
+                    displayMessage('Report transmitted');
                 }
             }
             else {

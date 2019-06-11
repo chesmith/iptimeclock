@@ -11,7 +11,7 @@ const datepicker = require('tempusdominus-bootstrap-4');
 let teamMemberList = document.getElementById('teamMember');
 
 let messageTimer;
-let selectedId;
+let selectedMemberId;
 let selectedOption;
 
 ipc.on('loadTeam', (evt, teamMembers) => {
@@ -19,7 +19,7 @@ ipc.on('loadTeam', (evt, teamMembers) => {
 });
 
 ipc.on('reset', (evt) => {
-    selectedId = -1;
+    selectedMemberId = -1;
     selectedOption = null;
     clearFields();
 });
@@ -37,25 +37,25 @@ function populateTeamMemberList(teamMembers) {
             option.setAttribute('data-active', member.active);
             option.setAttribute('data-punchtype', member.punchtype);
             option.setAttribute('data-punchtime', member.punchtime);
-            option.text = ' ' + (member.role == 'mentor' ? 'Mentor: ' : '') + member.lastname + ', ' + member.firstname;
+            option.text = `  ${(member.role == 'mentor' ? 'Mentor: ' : '')}${member.lastname}, ${member.firstname}`;
             if (!member.active) {
                 option.text += ' (inactive)';
             }
             teamMemberList.add(option);
         }
     });
-    if (selectedId > -1) {
-        teamMemberList.value = selectedId;
+    if (selectedMemberId > -1) {
+        teamMemberList.value = selectedMemberId;
         selectedOption = teamMemberList[teamMemberList.selectedIndex];
     }
-    $('#loading').css('display', 'none');
+    $('#loading').hide();
 }
 
 function populateDetails() {
     $('#firstname').val(selectedOption.getAttribute('data-firstname'));
     $('#lastname').val(selectedOption.getAttribute('data-lastname'));
     $('#email').val(selectedOption.getAttribute('data-email'));
-    if (selectedOption.getAttribute('data-active') == 1) {
+    if (selectedOption.getAttribute('data-active')) {
         $('#active').prop('checked', true);
     }
     else {
@@ -75,30 +75,48 @@ function populateDetails() {
     }
 }
 
-$('#close').click( () => {
+$('#close').click(() => {
     ipc.send('reloadTeam');
     electron.remote.getCurrentWindow().hide();
 });
 
-$('#showInactive').change( () => {
-    if (selectedId > -1 && !$('#showInactive').prop('checked') && selectedOption.getAttribute('data-active') == 0) {
-        clearFields();
-        selectedId = -1;
+$('#teamMember').change(() => {
+    if (teamMemberList.selectedIndex > -1) {
+        selectedMemberId = teamMemberList.value;
+        selectedOption = teamMemberList[teamMemberList.selectedIndex];
+        $('#delete').css({ 'border-color': 'red', 'color': 'red' });
+    }
+    else {
+        selectedMemberId = -1;
+        selectedOption = null;
+    }
+
+    populateDetails();
+});
+
+$('#showInactive').change(() => {
+    if (selectedMemberId > -1) {
+        let selectedMemberIsInactive = (selectedOption.getAttribute('data-active') == 0);
+        let showInactive = $('#showInactive').prop('checked');
+        if (selectedMemberIsInactive && !showInactive) {
+            clearFields();
+            selectedMemberId = -1;
+        }
     }
     team.load(populateTeamMemberList);
 });
 
-$('#addNew').click( () => {
+$('#addNew').click(() => {
     teamMemberList.selectedIndex = -1;
-    selectedId = -1;
+    selectedMemberId = -1;
     selectedOption = null;
     clearFields();
 });
 
-$('#save').click( () => {
+$('#save').click(() => {
     validateFields(() => {
         if (teamMemberList.selectedIndex > -1) {
-            updateTeamMember(selectedId, () => {
+            updateTeamMember(selectedMemberId, () => {
                 displayMessage('updated');
             });
         }
@@ -110,7 +128,21 @@ $('#save').click( () => {
     });
 });
 
-$('#delete').click( () => {
+function validateFields(callback) {
+    let role = '';
+    if ($('#roleMentor').prop('checked'))
+        role = 'mentor';
+    else if ($('#roleStudent').prop('checked'))
+        role = 'student';
+    if ($('#firstname').val().length > 0 && $('#lastname').val().length > 0 && role.length > 0) {
+        callback();
+    }
+    else {
+        displayMessage('Error: Missing data');
+    }
+}
+
+$('#delete').click(() => {
     let options = {
         type: 'question',
         buttons: ['Yes', 'No'],
@@ -134,21 +166,7 @@ function clearFields() {
     $('#roleMentor').prop('checked', false);
     $('#active').prop('checked', true);
     $('#lastPunch').text('');
-    $('#delete').css({'border-color': 'grey', 'color': 'grey'});
-}
-
-function validateFields(callback) {
-    let role = '';
-    if ($('#roleMentor').prop('checked'))
-        role = 'mentor';
-    else if ($('#roleStudent').prop('checked'))
-        role = 'student';
-    if ($('#firstname').val().length > 0 && $('#lastname').val().length > 0 && role.length > 0) {
-        callback();
-    }
-    else {
-        displayMessage('Error: Missing data');
-    }
+    $('#delete').css({ 'border-color': 'grey', 'color': 'grey' });
 }
 
 function displayMessage(text) {
@@ -169,8 +187,8 @@ function addTeamMember() {
         role = 'student';
     team.add($('#firstname').val(), $('#lastname').val(), $('#email').val(), role, (err, id) => {
         if (!err) {
-            selectedId = id;
-            $('#loading').css('display', 'inline');
+            selectedMemberId = id;
+            $('#loading').show();
             team.load(populateTeamMemberList);
         }
     });
@@ -182,11 +200,12 @@ function updateTeamMember() {
         role = 'mentor';
     else if ($('#roleStudent').prop('checked'))
         role = 'student';
-    team.update(selectedId, $('#firstname').val(), $('#lastname').val(), $('#email').val(), role, $('#active').prop('checked'), (err) => {
+    team.update(selectedMemberId, $('#firstname').val(), $('#lastname').val(), $('#email').val(), role, $('#active').prop('checked'), (err) => {
         if (!err) {
             if (!$('#active').prop('checked') && !$('#showInactive').prop('checked')) {
+                //if currently selected member has been deactivated and we're not showing active, reset everything and remove that team member
                 clearFields();
-                selectedId = -1;
+                selectedMemberId = -1;
                 selectedOption = null;
                 teamMemberList.remove(teamMemberList.selectedIndex);
             }
@@ -208,16 +227,16 @@ function updateTeamMember() {
 
 function deleteTeamMember() {
     clearFields();
-    team.delete(selectedId, (err) => {
+    team.delete(selectedMemberId, (err) => {
         if (!err) {
-            selectedId = -1;
+            selectedMemberId = -1;
             selectedOption = null;
             teamMemberList.remove(teamMemberList.selectedIndex);
         }
     });
 }
 
-$('#clockOutAll').click( () => {
+$('#clockOutAll').click(() => {
     timeclock.clockOutAll(() => {
         displayMessage('Clocked out everyone');
     });
@@ -260,11 +279,11 @@ $('input[name=timeframe]').change(() => {
     $('#onscreenreport').html('');
 });
 
-$('#transmitReport').click( () => {
+$('#transmitReport').click(() => {
     var fromdate = $('#datetimepicker1').datetimepicker('date');
-    var todate  = $('#datetimepicker2').datetimepicker('date');
+    var todate = $('#datetimepicker2').datetimepicker('date');
     timeclock.generateReport(fromdate, todate, (err, reportfile) => {
-        if(!err) {
+        if (!err) {
             timeclock.sendReport(reportfile, (message) => {
                 displayMessage(message);
             });
@@ -275,22 +294,8 @@ $('#transmitReport').click( () => {
     });
 });
 
-$('#displayReport').click( () => {
+$('#displayReport').click(() => {
     var fromdate = $('#datetimepicker1').datetimepicker('viewDate');
-    var todate  = $('#datetimepicker2').datetimepicker('viewDate');
+    var todate = $('#datetimepicker2').datetimepicker('viewDate');
     timeclock.displaySummaryReport(fromdate, todate, '#onscreenreport');
-});
-
-$('#teamMember').change( () => {
-    if (teamMemberList.selectedIndex > -1) {
-        selectedId = teamMemberList.value;
-        selectedOption = teamMemberList[teamMemberList.selectedIndex];
-        $('#delete').css({'border-color': 'red', 'color': 'red'});
-    }
-    else {
-        selectedId = -1;
-        selectedOption = null;
-    }
-
-    populateDetails();
 });

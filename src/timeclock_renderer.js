@@ -77,7 +77,7 @@ $('#clockIn').click( () => {
         return;
     }
     let teamMemberId = teamMemberList.value;
-    timeclock.isClockedIn(teamMemberId, (clockedIn) => {
+    timeclock.isClockedIn(teamMemberId, (err, clockedIn) => {
         let firstname = teamMemberList[selectedIndex].getAttribute('data-firstname');
         if (clockedIn) {
             displayInfo(`${firstname} is already clocked in`);
@@ -104,7 +104,7 @@ $('#clockOut').click( () => {
         return;
     }
     let teamMemberId = teamMemberList.value;
-    timeclock.isClockedIn(teamMemberId, (clockedIn) => {
+    timeclock.isClockedIn(teamMemberId, (err, clockedIn) => {
         let firstname = teamMemberList[selectedIndex].getAttribute('data-firstname');
         if (clockedIn) {
             timeclock.clockOut(teamMemberId, (err, clockTime) => {

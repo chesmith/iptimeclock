@@ -29,7 +29,7 @@ module.exports = {
         let con = mysql.createConnection({ host: "127.0.0.1", user: "***REMOVED***", password: "***REMOVED***", database: "TIMECLOCK" });
         let insert = sql.toUpperCase().startsWith("INSERT");
 
-        con.connect(function (err) {
+        con.connect((err) => {
             if (err) {
                 console.warn('error connecting to db');
             }
@@ -189,7 +189,7 @@ module.exports = {
                         mailOptions["attachments"] = attachments;
                     }
 
-                    transporter.sendMail(mailOptions, function (err, info) {
+                    transporter.sendMail(mailOptions, (err, info) => {
                         if (err) {
                             console.warn(`send email failure: ${err}`);
                         }
