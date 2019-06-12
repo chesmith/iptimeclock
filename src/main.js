@@ -2,6 +2,8 @@ const electron = require('electron');
 
 const clock = require('./js/clock.js');
 const team = require('./js/team.js');
+const config = require('./js/config.js');
+const util = require ('./js/util.js');
 
 const os = require('os');
 
@@ -88,9 +90,6 @@ ipc.on('displayPasscodeEntry', (evt) => {
 });
 
 ipc.on('displaySettings', (evt) => {
-    // team.load((teamMembers) => {
-    //     settingsWindow.webContents.send('loadTeam', teamMembers);
-    // });
     passcodeWindow.hide();
     settingsWindow.show();
 });
@@ -106,7 +105,8 @@ ipc.on('set-id', (evt, id) => {
 });
 
 app.on('certificate-error', (event, webContents, url, error, certifiate, callback) => {
-    if(url === '***REMOVED***') {  //ignore certificate errors, since this uses a self-signed cert
+    if(url === util.decrypt(config.wifi.portalUrl)) {
+        //ignore certificate errors, since this uses a self-signed cert
         event.preventDefault();
         callback(true);
     } else {
