@@ -6,6 +6,8 @@ const wifi = require('node-wifi');
 const axios = require('axios');
 const querystring = require('querystring');
 const nodemailer = require('nodemailer');
+const config = require('./config.js');
+const fs = require('fs');
 
 module.exports = {
     formatTime: function (timeToFormat) {
@@ -26,8 +28,13 @@ module.exports = {
     },
 
     dbexec: function (sql, values, callback) {
-        let con = mysql.createConnection({ host: "127.0.0.1", user: "***REMOVED***", password: "***REMOVED***", database: "TIMECLOCK" });
-        let insert = sql.toUpperCase().startsWith("INSERT");
+        let con = mysql.createConnection({
+            host: config.db.host,
+            user: this.decrypt(config.db.user),
+            password: this.decrypt(config.db.password),
+            database: 'TIMECLOCK'
+        });
+        let insert = sql.toUpperCase().startsWith('INSERT');
 
         con.connect((err) => {
             if (err) {
@@ -163,8 +170,10 @@ module.exports = {
 
     emailMentors: function (subject, message, attachments) {
         var transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: { user: '***REMOVED***', pass: '***REMOVED***' }
+            host: this.decrypt(config.email.host),
+            port: config.email.port,
+            auth: { user: this.decrypt(config.email.user), pass: this.decrypt(config.email.pass) },
+            secure: config.email.secure
         });
 
         let sql = `SELECT * FROM teammembers WHERE role = 'mentor' AND active AND LENGTH(IFNULL(email,'')) > 0;`;
@@ -186,7 +195,7 @@ module.exports = {
                     };
 
                     if(typeof attachments != 'undefined' && attachments.length > 0) {
-                        mailOptions["attachments"] = attachments;
+                        mailOptions['attachments'] = attachments;
                     }
 
                     transporter.sendMail(mailOptions, (err, info) => {
@@ -203,5 +212,25 @@ module.exports = {
                 console.error(err);
             }
         });
+    },
+
+    encrypt: function(text) {
+        let key = fs.readFileSync('src/key.txt', 'utf-8');
+        let iv = crypto.randomBytes(16);
+        let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key, 'hex'), iv);
+        let encrypted = cipher.update(text);
+        encrypted = Buffer.concat([encrypted, cipher.final()]);
+        return { iv: iv.toString('hex'), data: encrypted.toString('hex') }
+    },
+    
+    decrypt: function(text) {
+        let iv = text.substring(0,32);
+        let data = text.substring(32);
+        let key = fs.readFileSync('src/key.txt', 'utf-8');
+        let encryptedText = Buffer.from(data, 'hex');
+        let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key, 'hex'), Buffer.from(iv, 'hex'));
+        let decrypted = decipher.update(encryptedText);
+        decrypted = Buffer.concat([decrypted, decipher.final()]);
+        return decrypted.toString();
     }
 }

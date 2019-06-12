@@ -49,7 +49,7 @@ function keypress(id, digit) {
 }
 
 function reset() {
-    passcode = "";
+    passcode = '';
     updateDisplay();
 }
 

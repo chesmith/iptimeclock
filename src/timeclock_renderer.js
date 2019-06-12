@@ -133,7 +133,7 @@ ipc.on('loadTeam', (evt, teamMembers) => {
             option.setAttribute('data-role', member.role);
             option.setAttribute('data-punchtype', member.punchtype);
             option.setAttribute('data-punchtime', member.punchtime);
-            option.text = ' ' + (member.role == 'mentor' ? 'Mentor: ' : '') + member.lastname + ", " + member.firstname;
+            option.text = ` ${(member.role == 'mentor' ? 'Mentor: ' : '')}${member.lastname$}, ${member.firstname}`;
             if (member.punchtype == 1) {
                 let punchtime = new Date(Date.parse(member.punchtime));
                 option.text += ` (in since ${util.formatTime(punchtime)})`;

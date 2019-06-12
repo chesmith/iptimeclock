@@ -172,9 +172,9 @@ function clearFields() {
 function displayMessage(text) {
     clearTimeout(messageTimer);
     $('#message').html(text);
-    $("#message").fadeIn(500, "linear", () => {
+    $('#message').fadeIn(500, 'linear', () => {
         messageTimer = setTimeout(() => {
-            $("#message").fadeOut(2000, "linear");
+            $('#message').fadeOut(2000, 'linear');
         }, 2500);
     });
 }
@@ -247,7 +247,7 @@ $('input[name=timeframe]').change(() => {
     $('#datetimepicker1').datetimepicker('date', null);
     $('#datetimepicker2').datetimepicker('date', null);
 
-    var selection = $("input[name=timeframe]:checked").val();
+    var selection = $('input[name=timeframe]:checked').val();
     var start = moment();
     var end = moment();
     switch (selection) {
