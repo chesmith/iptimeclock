@@ -62,16 +62,16 @@ function populateDetails() {
         $('#active').prop('checked', false);
     }
     let student = (selectedOption.getAttribute('data-role') == 'student');
-    $('#roleStudent').prop('checked', student);
-    $('#roleMentor').prop('checked', !student);
+    $('#student').prop('checked', student);
+    $('#mentor').prop('checked', !student);
     let punchtype = selectedOption.getAttribute('data-punchtype');
     if (punchtype == 'null') {
-        $('#lastPunch').text(`${$('#firstname').val()} has never clocked in`);
+        $('#lastPunch').html(`${$('#firstname').val()} has never clocked in`);
     }
     else {
         let punchtime = new Date(Date.parse(selectedOption.getAttribute('data-punchtime')));
-        let message = `${$('#firstname').val()} last clocked ${(punchtype == '0' ? 'out' : 'in')} ${punchtime.toLocaleDateString()} ${util.formatTime(punchtime)}`;
-        $('#lastPunch').text(message);
+        let message = `${$('#firstname').val()} last clocked ${(punchtype == '0' ? 'out' : 'in')}<br/> ${punchtime.toLocaleDateString()} ${util.formatTime(punchtime)}`;
+        $('#lastPunch').html(message);
     }
 }
 
@@ -130,9 +130,9 @@ $('#save').click(() => {
 
 function validateFields(callback) {
     let role = '';
-    if ($('#roleMentor').prop('checked'))
+    if ($('#mentor').prop('checked'))
         role = 'mentor';
-    else if ($('#roleStudent').prop('checked'))
+    else if ($('#student').prop('checked'))
         role = 'student';
     if ($('#firstname').val().length > 0 && $('#lastname').val().length > 0 && role.length > 0) {
         callback();
@@ -162,10 +162,10 @@ function clearFields() {
     $('#firstname').val('');
     $('#lastname').val('');
     $('#email').val('');
-    $('#roleStudent').prop('checked', false);
-    $('#roleMentor').prop('checked', false);
+    $('#student').prop('checked', false);
+    $('#mentor').prop('checked', false);
     $('#active').prop('checked', true);
-    $('#lastPunch').text('');
+    $('#lastPunch').html('');
     $('#delete').css({ 'border-color': 'grey', 'color': 'grey' });
 }
 
@@ -181,9 +181,9 @@ function displayMessage(text) {
 
 function addTeamMember() {
     let role = '';
-    if ($('#roleMentor').prop('checked'))
+    if ($('#mentor').prop('checked'))
         role = 'mentor';
-    else if ($('#roleStudent').prop('checked'))
+    else if ($('#student').prop('checked'))
         role = 'student';
     team.add($('#firstname').val(), $('#lastname').val(), $('#email').val(), role, (err, id) => {
         if (!err) {
@@ -196,9 +196,9 @@ function addTeamMember() {
 
 function updateTeamMember() {
     let role = '';
-    if ($('#roleMentor').prop('checked'))
+    if ($('#mentor').prop('checked'))
         role = 'mentor';
-    else if ($('#roleStudent').prop('checked'))
+    else if ($('#student').prop('checked'))
         role = 'student';
     team.update(selectedMemberId, $('#firstname').val(), $('#lastname').val(), $('#email').val(), role, $('#active').prop('checked'), (err) => {
         if (!err) {

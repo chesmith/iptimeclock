@@ -71,8 +71,15 @@ module.exports = {
                     displayMessage(`No internet connectivity.  Attempting to connect and retry every 3 seconds...`);
                     util.connectWifi((retry, maxretries) => {
                         if (typeof retry == 'undefined') {
-                            util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }]);
-                            displayMessage('Report transmitted');
+                            //TODO: this is repeated exactly below - separate to another function
+                            util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }], (err, message) => {
+                                if(!err) {
+                                    displayMessage(message);
+                                }
+                                else {
+                                    displayMessage(`Error in transmission: ${err}`)
+                                }
+                            });
                         }
                         else {
                             displayMessage(`Retry ${retry} of ${maxretries}...`);
@@ -80,9 +87,14 @@ module.exports = {
                     });
                 }
                 else {
-                    //TODO: there might not be any mentors with email addresses configured - in this case, it will save but not "transmit", so show appropriate message
-                    util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }]);
-                    displayMessage('Report transmitted');
+                    util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }], (err, message) => {
+                        if(!err) {
+                            displayMessage(message);
+                        }
+                        else {
+                            displayMessage(`Error in transmission: ${err}`)
+                        }
+                    });
                 }
             }
             else {

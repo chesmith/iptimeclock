@@ -109,7 +109,7 @@ module.exports = {
                 });
             }
             else {
-                callback(err, -1);
+                callback(0, -1);
             }
         });
     },
@@ -167,7 +167,8 @@ module.exports = {
         });
     },
 
-    emailMentors: function (subject, message, attachments) {
+    emailMentors: function (subject, message, attachments, displayMessage) {
+        //TODO: include some stuff in the email body; name of mentor sending email, perhaps a summary like we provide on display
         var transporter = nodemailer.createTransport({
             host: this.decrypt(config.email.host),
             port: config.email.port,
@@ -200,15 +201,21 @@ module.exports = {
                     transporter.sendMail(mailOptions, (err, info) => {
                         if (err) {
                             console.warn(`send email failure: ${err}`);
+                            displayMessage(err, 'Failed to transmit report');
                         }
                         else {
                             console.info('email success');
+                            displayMessage(err, 'Report transmitted');
                         }
                     });
+                }
+                else {
+                    displayMessage(err, 'No active mentor email addresses - saved report to disk instead');
                 }
             }
             else {
                 console.error(err);
+                displayMessage(err, '');
             }
         });
     },
