@@ -122,7 +122,6 @@ module.exports = {
         });
 
         wifi.connect({ ssid: this.decrypt(config.wifi.SSID), password: this.decrypt(config.wifi.pass) }, (err) => {
-            //wifi.connect({ ssid: '***REMOVED***', password: null }, (err) => {
             if (err) {
                 console.error(`unable to connect to wifi: ${err}`);
             }
