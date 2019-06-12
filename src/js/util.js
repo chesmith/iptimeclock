@@ -121,7 +121,7 @@ module.exports = {
             iface: null
         });
 
-        wifi.connect({ ssid: '***REMOVED***', password: '***REMOVED***' }, (err) => {
+        wifi.connect({ ssid: this.decrypt(config.wifi.SSID), password: this.decrypt(config.wifi.pass) }, (err) => {
             //wifi.connect({ ssid: '***REMOVED***', password: null }, (err) => {
             if (err) {
                 console.error(`unable to connect to wifi: ${err}`);
@@ -140,12 +140,12 @@ module.exports = {
                             }
                             else if (online == 2 || online == 3) {
                                 let data = querystring.stringify({
-                                    username: '***REMOVED***',
-                                    password: '***REMOVED***',
+                                    username: this.decrypt(config.wifi.user),
+                                    password: this.decrypt(config.wifi.pass),
                                     buttonClicked: '4'
                                 });
 
-                                axios.post('***REMOVED***', data)
+                                axios.post(this.decrypt(config.wifi.portalUrl), data)
                                     .then((res) => {
                                         // clearInterval(retryInterval);
                                         // if(typeof callback != 'undefined') callback();
@@ -188,7 +188,7 @@ module.exports = {
                 });
                 if (recipients.length > 0) {
                     var mailOptions = {
-                        from: '***REMOVED***',
+                        from: this.decrypt(config.email.from),
                         to: recipients,
                         subject: subject,
                         text: message
