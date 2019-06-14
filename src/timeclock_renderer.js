@@ -15,7 +15,7 @@ setInterval(() => {
     util.checkOnlineStatus((err, online) => {
         let color;
         // console.table([[`err`,`${err}`], [`online status`,`${online}`]]);
-        switch(online) {
+        switch (online) {
             case 0: color = 'white'; break;
             case 2: case 3: color = 'orange'; break;
             default: color = 'red'
@@ -35,7 +35,7 @@ ipc.on('displayClock', (evt, currentHour, currentMinute, ampm, blink) => {
 });
 
 //show the settings icon/button only for mentors
-$('#teamMember').change( () => {
+$('#teamMember').change(() => {
     let role = teamMemberList.options[teamMemberList.selectedIndex].getAttribute('data-role');
     showSettings(role == 'mentor');
 
@@ -70,7 +70,7 @@ function clearAlert() {
 }
 
 //clock in the team member, only if currently clocked out (alternate approach is to log a clock-in record regardless)
-$('#clockIn').click( () => {
+$('#clockIn').click(() => {
     let selectedIndex = teamMemberList.selectedIndex;
     if (selectedIndex == -1) {
         displayInfo('Please select a team member first');
@@ -86,7 +86,7 @@ $('#clockIn').click( () => {
             timeclock.clockIn(teamMemberId, (err, clockTime) => {
                 if (!err) {
                     let text = teamMemberList[selectedIndex].text;
-                    if(text.indexOf('(') > -1)
+                    if (text.indexOf('(') > -1)
                         text = text.substring(0, text.indexOf('(') - 1);
                     teamMemberList[selectedIndex].text = text + ` (in since ${util.formatTime(clockTime)})`;
                     displayInfo(`${firstname}, you've been clocked in`);
@@ -97,7 +97,7 @@ $('#clockIn').click( () => {
 });
 
 //clock out the team member, only if currently clocked in (alternate approach is to log a clock-out record regardless)
-$('#clockOut').click( () => {
+$('#clockOut').click(() => {
     let selectedIndex = teamMemberList.selectedIndex;
     if (selectedIndex == -1) {
         displayInfo('Please select a team member first');
@@ -122,29 +122,31 @@ $('#clockOut').click( () => {
 });
 
 //reload the team - currently, signal received from main.js on initial launch or when another window asks to reload
-ipc.on('loadTeam', (evt, teamMembers) => {
-    teamMemberList.options.length = 0;
-    teamMembers.forEach((member) => {
-        if (member.active) {
-            option = document.createElement('option');
-            option.value = member.id;
-            option.setAttribute('data-firstname', member.firstname);
-            option.setAttribute('data-lastname', member.lastname);
-            option.setAttribute('data-role', member.role);
-            option.setAttribute('data-punchtype', member.punchtype);
-            option.setAttribute('data-punchtime', member.punchtime);
-            option.text = ` ${(member.role == 'mentor' ? 'Mentor: ' : '')}${member.lastname}, ${member.firstname}`;
-            if (member.punchtype == 1) {
-                let punchtime = new Date(Date.parse(member.punchtime));
-                option.text += ` (in since ${util.formatTime(punchtime)})`;
+ipc.on('loadTeam', (evt, err, teamMembers) => {
+    if (!err) {
+        teamMemberList.options.length = 0;
+        teamMembers.forEach((member) => {
+            if (member.active) {
+                option = document.createElement('option');
+                option.value = member.id;
+                option.setAttribute('data-firstname', member.firstname);
+                option.setAttribute('data-lastname', member.lastname);
+                option.setAttribute('data-role', member.role);
+                option.setAttribute('data-punchtype', member.punchtype);
+                option.setAttribute('data-punchtime', member.punchtime);
+                option.text = ` ${(member.role == 'mentor' ? 'Mentor: ' : '')}${member.lastname}, ${member.firstname}`;
+                if (member.punchtype == 1) {
+                    let punchtime = new Date(Date.parse(member.punchtime));
+                    option.text += ` (in since ${util.formatTime(punchtime)})`;
+                }
+                teamMemberList.add(option);
             }
-            teamMemberList.add(option);
-        }
-    });
+        });
+    }
 });
 
 //show the passcode window - only allow mentors to access
-$('#settings').click( () => {
+$('#settings').click(() => {
     if (teamMemberList.selectedIndex > -1) {
         let role = teamMemberList.options[teamMemberList.selectedIndex].getAttribute('data-role');
         if (role == 'mentor') {

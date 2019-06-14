@@ -11,18 +11,14 @@ module.exports = {
                     WHERE NOT m.deleted
                     ORDER BY if(role='student',1,2), lastname`;
         util.dbexec(sql, [], (err, results) => {
-            if (!err) {
-                callback(results);
-            }
+            callback(err, results);
         });
     },
 
     add: function (firstname, lastname, email, role, callback) {
         let sql = 'INSERT INTO teammembers (firstname, lastname, email, role) VALUES (?, ?, ?, ?)';
         util.dbexec(sql, [firstname, lastname, email, role], (err, results) => {
-            if (!err) {
-                callback(err, results);
-            }
+            callback(err, results);
         });
     },
 

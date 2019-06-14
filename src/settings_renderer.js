@@ -14,8 +14,8 @@ let messageTimer;
 let selectedMemberId;
 let selectedOption;
 
-ipc.on('loadTeam', (evt, teamMembers) => {
-    populateTeamMemberList(teamMembers);
+ipc.on('loadTeam', (evt, err, teamMembers) => {
+    populateTeamMemberList(err, teamMembers);
 });
 
 ipc.on('reset', (evt) => {
@@ -24,29 +24,31 @@ ipc.on('reset', (evt) => {
     clearFields();
 });
 
-function populateTeamMemberList(teamMembers) {
-    teamMemberList.options.length = 0;
-    teamMembers.forEach((member) => {
-        if (member.active || $('#showInactive').prop('checked')) {
-            option = document.createElement('option');
-            option.value = member.id;
-            option.setAttribute('data-firstname', member.firstname);
-            option.setAttribute('data-lastname', member.lastname);
-            option.setAttribute('data-email', member.email);
-            option.setAttribute('data-role', member.role);
-            option.setAttribute('data-active', member.active);
-            option.setAttribute('data-punchtype', member.punchtype);
-            option.setAttribute('data-punchtime', member.punchtime);
-            option.text = `  ${(member.role == 'mentor' ? 'Mentor: ' : '')}${member.lastname}, ${member.firstname}`;
-            if (!member.active) {
-                option.text += ' (inactive)';
+function populateTeamMemberList(err, teamMembers) {
+    if (!err) {
+        teamMemberList.options.length = 0;
+        teamMembers.forEach((member) => {
+            if (member.active || $('#showInactive').prop('checked')) {
+                option = document.createElement('option');
+                option.value = member.id;
+                option.setAttribute('data-firstname', member.firstname);
+                option.setAttribute('data-lastname', member.lastname);
+                option.setAttribute('data-email', member.email);
+                option.setAttribute('data-role', member.role);
+                option.setAttribute('data-active', member.active);
+                option.setAttribute('data-punchtype', member.punchtype);
+                option.setAttribute('data-punchtime', member.punchtime);
+                option.text = `  ${(member.role == 'mentor' ? 'Mentor: ' : '')}${member.lastname}, ${member.firstname}`;
+                if (!member.active) {
+                    option.text += ' (inactive)';
+                }
+                teamMemberList.add(option);
             }
-            teamMemberList.add(option);
+        });
+        if (selectedMemberId > -1) {
+            teamMemberList.value = selectedMemberId;
+            selectedOption = teamMemberList[teamMemberList.selectedIndex];
         }
-    });
-    if (selectedMemberId > -1) {
-        teamMemberList.value = selectedMemberId;
-        selectedOption = teamMemberList[teamMemberList.selectedIndex];
     }
     $('#loading').hide();
 }
@@ -55,24 +57,20 @@ function populateDetails() {
     $('#firstname').val(selectedOption.getAttribute('data-firstname'));
     $('#lastname').val(selectedOption.getAttribute('data-lastname'));
     $('#email').val(selectedOption.getAttribute('data-email'));
-    if (selectedOption.getAttribute('data-active')) {
-        $('#active').prop('checked', true);
-    }
-    else {
-        $('#active').prop('checked', false);
-    }
-    let student = (selectedOption.getAttribute('data-role') == 'student');
-    $('#student').prop('checked', student);
-    $('#mentor').prop('checked', !student);
+    $('#active').prop('checked', selectedOption.getAttribute('data-active'));
+    $('#student').prop('checked', (selectedOption.getAttribute('data-role') == 'student'));
+    $('#mentor').prop('checked', (selectedOption.getAttribute('data-role') == 'mentor'));
+
     let punchtype = selectedOption.getAttribute('data-punchtype');
+    let lastPunchMessage = '';
     if (punchtype == 'null') {
-        $('#lastPunch').html(`${$('#firstname').val()} has never clocked in`);
+        lastPunchMessage = `${$('#firstname').val()} has never clocked in`;
     }
     else {
         let punchtime = new Date(Date.parse(selectedOption.getAttribute('data-punchtime')));
-        let message = `${$('#firstname').val()} last clocked ${(punchtype == '0' ? 'out' : 'in')}<br/> ${punchtime.toLocaleDateString()} ${util.formatTime(punchtime)}`;
-        $('#lastPunch').html(message);
+        lastPunchMessage = `${$('#firstname').val()} last clocked ${(punchtype == '0' ? 'out' : 'in')}<br/> ${punchtime.toLocaleDateString()} ${util.formatTime(punchtime)}`;
     }
+    $('#lastPunch').html(lastPunchMessage);
 }
 
 $('#close').click(() => {
@@ -129,11 +127,9 @@ $('#save').click(() => {
 });
 
 function validateFields(callback) {
-    let role = '';
-    if ($('#mentor').prop('checked'))
-        role = 'mentor';
-    else if ($('#student').prop('checked'))
-        role = 'student';
+    let role = $("input:radio[name ='role']:checked").val();
+    if(typeof role == 'undefined') role = '';
+
     if ($('#firstname').val().length > 0 && $('#lastname').val().length > 0 && role.length > 0) {
         callback();
     }
@@ -165,8 +161,9 @@ function clearFields() {
     $('#student').prop('checked', false);
     $('#mentor').prop('checked', false);
     $('#active').prop('checked', true);
-    $('#lastPunch').html('');
+
     $('#delete').css({ 'border-color': 'grey', 'color': 'grey' });
+    $('#lastPunch').html('');
 }
 
 function displayMessage(text) {
@@ -180,11 +177,9 @@ function displayMessage(text) {
 }
 
 function addTeamMember() {
-    let role = '';
-    if ($('#mentor').prop('checked'))
-        role = 'mentor';
-    else if ($('#student').prop('checked'))
-        role = 'student';
+    let role = $("input:radio[name ='role']:checked").val();
+    if(typeof role == 'undefined') role = 'student';
+
     team.add($('#firstname').val(), $('#lastname').val(), $('#email').val(), role, (err, id) => {
         if (!err) {
             selectedMemberId = id;
@@ -195,11 +190,9 @@ function addTeamMember() {
 }
 
 function updateTeamMember() {
-    let role = '';
-    if ($('#mentor').prop('checked'))
-        role = 'mentor';
-    else if ($('#student').prop('checked'))
-        role = 'student';
+    let role = $("input:radio[name ='role']:checked").val();
+    if(typeof role == 'undefined') role = 'student';
+
     team.update(selectedMemberId, $('#firstname').val(), $('#lastname').val(), $('#email').val(), role, $('#active').prop('checked'), (err) => {
         if (!err) {
             if (!$('#active').prop('checked') && !$('#showInactive').prop('checked')) {

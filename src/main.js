@@ -3,7 +3,7 @@ const electron = require('electron');
 const clock = require('./js/clock.js');
 const team = require('./js/team.js');
 const config = require('./js/config.js');
-const util = require ('./js/util.js');
+const util = require('./js/util.js');
 
 const os = require('os');
 
@@ -26,7 +26,7 @@ app.on('ready', () => {
         show: false,
         webPreferences: {
             nodeIntegration: true
-          }
+        }
     });
 
     mainWindow.loadURL(`file://${__dirname}/timeclock.html`);
@@ -36,8 +36,8 @@ app.on('ready', () => {
             mainWindow.webContents.send('displayClock', h, m, a, b);
         });
 
-        team.load((teamMembers) => {
-            mainWindow.webContents.send('loadTeam', teamMembers);
+        team.load((err, teamMembers) => {
+            mainWindow.webContents.send('loadTeam', err, teamMembers);
         });
         mainWindow.show();
     });
@@ -78,9 +78,9 @@ app.on('ready', () => {
     settingsWindow.loadURL(`file://${__dirname}/settings.html`);
 
     settingsWindow.on('show', (evt) => {
-        team.load((teamMembers) => {
+        team.load((err, teamMembers) => {
             settingsWindow.webContents.send('reset');
-            settingsWindow.webContents.send('loadTeam', teamMembers);
+            settingsWindow.webContents.send('loadTeam', err, teamMembers);
         });
     });
 });
@@ -95,8 +95,8 @@ ipc.on('displaySettings', (evt) => {
 });
 
 ipc.on('reloadTeam', (evt) => {
-    team.load((teamMembers) => {
-        mainWindow.webContents.send('loadTeam', teamMembers);
+    team.load((err, teamMembers) => {
+        mainWindow.webContents.send('loadTeam', err, teamMembers);
     });
 });
 
@@ -105,7 +105,7 @@ ipc.on('set-id', (evt, id) => {
 });
 
 app.on('certificate-error', (event, webContents, url, error, certifiate, callback) => {
-    if(url === util.decrypt(config.wifi.portalUrl)) {
+    if (url === util.decrypt(config.wifi.portalUrl)) {
         //ignore certificate errors, since this uses a self-signed cert
         event.preventDefault();
         callback(true);

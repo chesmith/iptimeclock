@@ -26,13 +26,15 @@ module.exports = {
     },
 
     clockOutAll: function (callback) {
-        team.load((teamMembers) => {
-            teamMembers.forEach((member) => {
-                if (member.active && member.punchtype == 1) {
-                    this.clockOut(member.id);
-                }
-            });
-            if (callback) callback();
+        team.load((err, teamMembers) => {
+            if (!err) {
+                teamMembers.forEach((member) => {
+                    if (member.active && member.punchtype == 1) {
+                        this.clockOut(member.id);
+                    }
+                });
+                if (callback) callback();
+            }
         });
     },
 
@@ -73,7 +75,7 @@ module.exports = {
                         if (typeof retry == 'undefined') {
                             //TODO: this is repeated exactly below - separate to another function
                             util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }], (err, message) => {
-                                if(!err) {
+                                if (!err) {
                                     displayMessage(message);
                                 }
                                 else {
@@ -88,7 +90,7 @@ module.exports = {
                 }
                 else {
                     util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }], (err, message) => {
-                        if(!err) {
+                        if (!err) {
                             displayMessage(message);
                         }
                         else {
@@ -134,7 +136,7 @@ module.exports = {
                             if (row.id == prevId) {
                                 let total = (punchtime - punch_in);
                                 let d = data.get(row.id);
-                                if(typeof d != 'undefined') {
+                                if (typeof d != 'undefined') {
                                     total += d.total;
                                 }
                                 data.set(row.id, { lastname: row.lastname, firstname: row.firstname, total: total });
@@ -147,7 +149,7 @@ module.exports = {
 
                     $(targetDiv).append('<table>');
                     let toggle = true;
-                    data.forEach( (d, id) => {
+                    data.forEach((d, id) => {
                         let totalhours = (d.total / 1000 / 60 / 60).toFixed(2);
                         toggle = !toggle;
                         let background = (toggle ? '#444' : '#666');
