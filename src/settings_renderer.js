@@ -58,7 +58,7 @@ function populateDetails() {
     $('#firstname').val(selectedOption.getAttribute('data-firstname'));
     $('#lastname').val(selectedOption.getAttribute('data-lastname'));
     $('#email').val(selectedOption.getAttribute('data-email'));
-    $('#active').prop('checked', selectedOption.getAttribute('data-active'));
+    $('#active').prop('checked', (selectedOption.getAttribute('data-active') == '1'));
     $('#student').prop('checked', (selectedOption.getAttribute('data-role') == 'student'));
     $('#mentor').prop('checked', (selectedOption.getAttribute('data-role') == 'mentor'));
 
