@@ -102,6 +102,7 @@ ipc.on('reloadTeam', (evt) => {
 
 ipc.on('set-id', (evt, id) => {
     passcodeWindow.webContents.send('set-id', id);
+    settingsWindow.webContents.send('set-id', id);
 });
 
 app.on('certificate-error', (event, webContents, url, error, certifiate, callback) => {

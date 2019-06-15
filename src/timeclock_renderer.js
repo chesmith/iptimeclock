@@ -5,10 +5,9 @@ const util = require('./js/util.js');
 window.$ = window.jQuery = require('jquery');
 
 let teamMemberList = document.getElementById('teamMember');
-let infoMessage = document.getElementById('message');
-let alertMessage = document.getElementById('alert');
 
 let timerMessage;
+let timerAlert;
 
 //maintain an indicator (small dot, lower right corner) of online/offline status
 setInterval(() => {
@@ -49,24 +48,27 @@ function showSettings(enable) {
 
 function displayInfo(text) {
     clearTimeout(timerMessage);
-    infoMessage.innerHTML = text;
-    infoMessage.classList.remove('fade-out');
-    infoMessage.classList.add('fade-in');
-    timerMessage = setTimeout(() => {
-        infoMessage.classList.remove('fade-in');
-        infoMessage.classList.add('fade-out');
-        infoMessage.innerHTML = '';
-    }, 2500);
+    $('#message').html(text);
+    $('#message').fadeIn(500, () => {
+        timerMessage = setTimeout(() => {
+            $('#message').fadeOut(2000);
+        }, 2500);
+    });
 }
 
 function displayAlert(text) {
-    alertMessage.innerText = text;
-    alertMessage.classList.add('fade-bounce');
+    $('#alert').text(text);
+    timerAlert = setInterval(() => {
+        $('#alert').fadeIn(500);
+        setTimeout(() => {
+            $('#alert').fadeOut(1500);
+        }, 5000);
+    }, 6500);
 }
 
 function clearAlert() {
-    alertMessage.innerText = '';
-    alertMessage.classList.remove('fade-bounce');
+    $('#alert').text('');
+    clearInterval(timerAlert);
 }
 
 //clock in the team member, only if currently clocked out (alternate approach is to log a clock-in record regardless)

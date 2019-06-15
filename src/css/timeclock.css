@@ -103,6 +103,7 @@ option {
     color: yellow;
     right: 255px;
     bottom: 15px;
+    display: none;
 }
 
 #online {

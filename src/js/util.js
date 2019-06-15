@@ -167,8 +167,7 @@ module.exports = {
         });
     },
 
-    emailMentors: function (subject, message, attachments, displayMessage) {
-        //TODO: include some stuff in the email body; name of mentor sending email, perhaps a summary like we provide on display
+    emailMentors: function (reportOptions, displayMessage) {
         var transporter = nodemailer.createTransport({
             host: this.decrypt(config.email.host),
             port: config.email.port,
@@ -180,22 +179,26 @@ module.exports = {
         this.dbexec(sql, [], (err, results) => {
             if (!err) {
                 let recipients = '';
+                let triggerName = '';
                 results.forEach((mentor) => {
                     if (recipients.length > 0) {
                         recipients += ',';
                     }
                     recipients += mentor.email;
+
+                    if(mentor.id == reportOptions.triggeredBy)
+                        triggerName = `${mentor.firstname} ${mentor.lastname}`;
                 });
                 if (recipients.length > 0) {
                     var mailOptions = {
                         from: this.decrypt(config.email.from),
                         to: recipients,
-                        subject: subject,
-                        text: message
+                        subject: reportOptions.subject,
+                        html: `${reportOptions.body}<p>Report triggered by ${triggerName}</p>`
                     };
 
-                    if(typeof attachments != 'undefined' && attachments.length > 0) {
-                        mailOptions['attachments'] = attachments;
+                    if(typeof reportOptions.attachments != 'undefined' && reportOptions.attachments.length > 0) {
+                        mailOptions['attachments'] = reportOptions.attachments;
                     }
 
                     transporter.sendMail(mailOptions, (err, info) => {

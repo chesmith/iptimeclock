@@ -1,6 +1,5 @@
 const util = require('./util.js');
 const team = require('./team.js');
-const nodemailer = require('nodemailer');
 
 module.exports = {
     isClockedIn: function (id, callback) {
@@ -38,7 +37,7 @@ module.exports = {
         });
     },
 
-    generateReport: function (fromdate, todate, callback) {
+    generateDetailReport: function (fromdate, todate, callback) {
         const fs = require('fs');
         let reportfile = `report.${Date.now()}.csv`
 
@@ -47,18 +46,20 @@ module.exports = {
         if (fromdate == null) _fromdate = moment('1/1/2000', 'M/D/YYYY');
         if (todate == null) _todate = moment().endOf('day');
 
-        let sql = `SELECT m.*, p.punchtype, p.created as punchtime
+        let sql = `SELECT m.*, p.id as punchid, p.punchtype, p.created as punchtime
                     FROM teammembers as m, punches as p
                     WHERE m.id = p.memberid AND m.active AND NOT m.deleted
                       AND p.created between ? and ?
-                    ORDER BY m.id, p.created`;
+                    ORDER BY m.id, p.id`;
         util.dbexec(sql, [_fromdate.format('YYYY-MM-DD HH:mm:ss'), _todate.format('YYYY-MM-DD HH:mm:ss')], (err, rows) => {
             if (!err) {
+                if(rows.length > 0)
+                    fs.appendFileSync(`reports/${reportfile}`, `Member ID,Punch ID,Last Name,First Name,Role,Type,Date/Time\r\n`);
                 rows.forEach((row) => {
                     let punchtype = (row.punchtype == 1 ? 'in' : 'out');
-                    let punchtime = new Date(Date.parse(row.punchtime));
+                    let punchtime = moment(row.punchtime);
 
-                    fs.appendFileSync(`reports/${reportfile}`, `${row.id},${row.lastname},${row.firstname},${row.role},${punchtype},${punchtime.toLocaleDateString()} ${util.formatTime(punchtime)}\r\n`);
+                    fs.appendFileSync(`reports/${reportfile}`, `${row.id},${row.punchid},"${row.lastname}","${row.firstname}",${row.role},${punchtype},${punchtime.format('M/D/YYYY H:mm:ss')}\r\n`);
                 });
             }
 
@@ -66,58 +67,56 @@ module.exports = {
         });
     },
 
-    sendReport: function (reportfile, displayMessage) {
+    sendReport: function (fromdate, todate, reportfile, summary, mentorId, displayMessage) {
         util.checkOnlineStatus((err, online) => {
             if (!err) {
-                if (online != 0) {
+                if (online == 0)
+                    sendEmail();
+                else {
                     displayMessage(`No internet connectivity.  Attempting to connect and retry every 3 seconds...`);
                     util.connectWifi((retry, maxretries) => {
-                        if (typeof retry == 'undefined') {
-                            //TODO: this is repeated exactly below - separate to another function
-                            util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }], (err, message) => {
-                                if (!err) {
-                                    displayMessage(message);
-                                }
-                                else {
-                                    displayMessage(`Error in transmission: ${err}`)
-                                }
-                            });
-                        }
-                        else {
+                        if (typeof retry == 'undefined')
+                            sendEmail();
+                        else
                             displayMessage(`Retry ${retry} of ${maxretries}...`);
-                        }
-                    });
-                }
-                else {
-                    util.emailMentors('IP Timeclock Report', 'IP Timeclock Report', [{ filename: reportfile, path: `reports/${reportfile}` }], (err, message) => {
-                        if (!err) {
-                            displayMessage(message);
-                        }
-                        else {
-                            displayMessage(`Error in transmission: ${err}`)
-                        }
                     });
                 }
             }
-            else {
+            else
                 console.error(err);
-            }
         });
+
+        function sendEmail() {
+            displayMessage('Sending email...');
+            let now = moment().format('M/D/YYYY h:mm a');
+            let from = moment(fromdate).format('M/D/YYYY');
+            let to = moment(todate).format('M/D/YYYY');
+            util.emailMentors(
+                {subject: `IP Timeclock Report: ${now}`,
+                    body: `<p>Report timeframe ${from} to ${to}</p>Summary:<br/>${summary}`,
+                    attachments: [{ filename: reportfile, path: `reports/${reportfile}` }],
+                    triggeredBy: mentorId}, (err, message) => {
+                if (!err)
+                    displayMessage(message);
+                else
+                    displayMessage(`Error in transmission: ${err}`)
+            });
+        }
     },
 
-    displaySummaryReport: function (fromdate, todate, targetDiv) {
-        $(targetDiv).html('');
+    generateSummaryReport: function (fromdate, todate, callback) {
+        let html = '';
 
         let _fromdate = moment(fromdate).startOf('day');
         let _todate = moment(todate).endOf('day');
         if (fromdate == null) _fromdate = moment('1/1/2000', 'M/D/YYYY');
         if (todate == null) _todate = moment().endOf('day');
 
-        let sql = `SELECT m.*, p.punchtype, p.created as punchtime
+        let sql = `SELECT m.*, p.id as punchid, p.punchtype, p.created as punchtime
                     FROM teammembers as m, punches as p
                     WHERE m.id = p.memberid AND m.active AND NOT m.deleted
                       AND p.created between ? and ?
-                    ORDER BY m.lastname, m.firstname, m.id, p.created`;
+                    ORDER BY m.lastname, m.firstname, m.id, p.id`;
         util.dbexec(sql, [_fromdate.format('YYYY-MM-DD HH:mm:ss'), _todate.format('YYYY-MM-DD HH:mm:ss')], (err, rows) => {
             if (!err) {
                 if (rows.length > 0) {
@@ -147,20 +146,25 @@ module.exports = {
                         prevId = row.id;
                     });
 
-                    $(targetDiv).append('<table>');
+                    html = '<table>'; 
                     let toggle = true;
                     data.forEach((d, id) => {
                         let totalhours = (d.total / 1000 / 60 / 60).toFixed(2);
-                        toggle = !toggle;
-                        let background = (toggle ? '#444' : '#666');
-                        $(targetDiv).append(`<tr style='background: ${background}'><td style='padding-right: 10px'>${d.lastname}, ${d.firstname} [${id}]</td><td>${totalhours} hours</td>`);
+                        // toggle = !toggle;
+                        // let background = (toggle ? '#444' : '#666');
+                        // html += `<tr style='background: ${background}'><td style='padding-right: 10px'>${d.lastname}, ${d.firstname} [${id}]</td><td>${totalhours} hours</td>`;
+                        html += `<tr><td style='padding-right: 10px'>${d.lastname}, ${d.firstname}</td><td>${totalhours} hours</td>`;
                     });
-                    $(targetDiv).append('</table>');
+                    html += '</table>';
                 }
                 else {
-                    $(targetDiv).html('<p>No punches found in that date range</p>');
+                    html = '<p>No punches found in that date range</p>';
                 }
+
+                callback(err, html);
             }
+            else
+                callback(err, '');
         });
     }
 }

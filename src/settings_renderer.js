@@ -13,6 +13,7 @@ let teamMemberList = document.getElementById('teamMember');
 let messageTimer;
 let selectedMemberId;
 let selectedOption;
+let mentorId;
 
 ipc.on('loadTeam', (evt, err, teamMembers) => {
     populateTeamMemberList(err, teamMembers);
@@ -128,7 +129,7 @@ $('#save').click(() => {
 
 function validateFields(callback) {
     let role = $("input:radio[name ='role']:checked").val();
-    if(typeof role == 'undefined') role = '';
+    if (typeof role == 'undefined') role = '';
 
     if ($('#firstname').val().length > 0 && $('#lastname').val().length > 0 && role.length > 0) {
         callback();
@@ -178,7 +179,7 @@ function displayMessage(text) {
 
 function addTeamMember() {
     let role = $("input:radio[name ='role']:checked").val();
-    if(typeof role == 'undefined') role = 'student';
+    if (typeof role == 'undefined') role = 'student';
 
     team.add($('#firstname').val(), $('#lastname').val(), $('#email').val(), role, (err, id) => {
         if (!err) {
@@ -191,7 +192,7 @@ function addTeamMember() {
 
 function updateTeamMember() {
     let role = $("input:radio[name ='role']:checked").val();
-    if(typeof role == 'undefined') role = 'student';
+    if (typeof role == 'undefined') role = 'student';
 
     team.update(selectedMemberId, $('#firstname').val(), $('#lastname').val(), $('#email').val(), role, $('#active').prop('checked'), (err) => {
         if (!err) {
@@ -275,14 +276,20 @@ $('input[name=timeframe]').change(() => {
 $('#transmitReport').click(() => {
     var fromdate = $('#datetimepicker1').datetimepicker('date');
     var todate = $('#datetimepicker2').datetimepicker('date');
-    timeclock.generateReport(fromdate, todate, (err, reportfile) => {
+    if(fromdate == null || todate == null) {
+        displayMessage('Please select a valid date range');
+    }
+
+    timeclock.generateDetailReport(fromdate, todate, (err, reportfile) => {
         if (!err) {
-            timeclock.sendReport(reportfile, (message) => {
-                displayMessage(message);
+            timeclock.generateSummaryReport(fromdate, todate, (err, summary) => {
+                timeclock.sendReport(fromdate, todate, reportfile, summary, mentorId, (message) => {
+                    displayMessage(message);
+                });
             });
         }
         else {
-            displayMessage(`Failed to transmit [${err}]`);
+            displayMessage(`Failed to generate report [${err}]`);
         }
     });
 });
@@ -290,5 +297,17 @@ $('#transmitReport').click(() => {
 $('#displayReport').click(() => {
     var fromdate = $('#datetimepicker1').datetimepicker('viewDate');
     var todate = $('#datetimepicker2').datetimepicker('viewDate');
-    timeclock.displaySummaryReport(fromdate, todate, '#onscreenreport');
+    timeclock.generateSummaryReport(fromdate, todate, (err, summary) => {
+        if (!err) {
+            $('#onscreenreport').html(summary);
+        }
+        else {
+            displayMessage(`Failed to generate report [${err}]`);
+        }
+    });
+});
+
+//leveraged by main view to set the ID of the member using settings (presumably a mentor)
+ipc.on('set-id', (evt, id) => {
+    mentorId = id;
 });
