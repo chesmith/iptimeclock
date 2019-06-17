@@ -39,7 +39,8 @@ module.exports = {
 
     generateDetailReport: function (fromdate, todate, callback) {
         const fs = require('fs');
-        let reportfile = `report.${Date.now()}.csv`
+        let reportfile = `report.${Date.now()}.csv`;
+        if (!fs.existsSync('reports')) fs.mkdir('reports');
 
         let _fromdate = moment(fromdate).startOf('day');
         let _todate = moment(todate).endOf('day');

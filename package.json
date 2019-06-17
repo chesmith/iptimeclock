@@ -1,8 +1,8 @@
 {
-  "name": "electrontest",
+  "name": "iptimeclock",
   "productName": "IP Timeclock",
   "version": "1.0.0",
-  "description": "",
+  "description": "Iron Plaid Timeclock",
   "main": "src/main.js",
   "scripts": {
     "start": "electron ."
@@ -14,7 +14,7 @@
     "electron-prebuilt": "^1.4.13"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "bootstrap": "^4.3.1",
     "font-awesome": "^4.7.0",
     "jquery": "^3.4.1",

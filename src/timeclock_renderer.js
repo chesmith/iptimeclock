@@ -9,6 +9,8 @@ let teamMemberList = document.getElementById('teamMember');
 let timerMessage;
 let timerAlert;
 
+$('#online').text(`v${process.env.npm_package_version}`);
+
 //maintain an indicator (small dot, lower right corner) of online/offline status
 setInterval(() => {
     util.checkOnlineStatus((err, online) => {
