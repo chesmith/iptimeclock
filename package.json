@@ -1,17 +1,19 @@
 {
   "name": "iptimeclock",
-  "productName": "IP Timeclock",
   "version": "1.0.0",
-  "description": "Iron Plaid Timeclock",
   "main": "src/main.js",
+  "description": "Iron Plaid Timeclock",
+  "author": "Che Smith",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "build",
+    "publish": "build -p always"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
-    "electron-prebuilt": "^1.4.13"
+    "electron-prebuilt": "^1.4.13",
+    "electron-builder": "^20.43.0"
   },
   "dependencies": {
     "axios": "^0.19.0",
@@ -23,6 +25,43 @@
     "nodemailer": "^6.2.1",
     "popper.js": "^1.15.0",
     "tempusdominus-bootstrap-4": "^5.1.2",
+    "tempusdominus-core": "^5.0.3",
     "typeface-montserrat": "0.0.54"
+  },
+  "build": {
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "chesmith",
+        "repo": "iptimeclock"
+      }
+    ],
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "armv7l"
+          ]
+        }
+      ]
+    },
+    "files": [
+      "**/*",
+      "!**/.vscode/*",
+      "!src/*.txt",
+      "!**/reports/*",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+    ]
   }
 }

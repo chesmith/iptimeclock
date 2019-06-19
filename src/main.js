@@ -49,6 +49,7 @@ app.on('ready', () => {
 
     mainWindow.on('closed', () => {
         mainWindow = null;
+        app.quit();
     });
 
     passcodeWindow = new BrowserWindow({

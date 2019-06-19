@@ -9,6 +9,10 @@ const nodemailer = require('nodemailer');
 const config = require('./config.js');
 const fs = require('fs');
 
+var electron = require('electron').remote;
+if(typeof electron == 'undefined') { electron = require('electron'); }
+const keyPath = require('path').join(electron.app.getPath("userData"), 'key.txt');
+
 module.exports = {
     formatTime: function (timeToFormat) {
         var hours = timeToFormat.getHours();
@@ -224,7 +228,7 @@ module.exports = {
     },
 
     encrypt: function(text) {
-        let key = fs.readFileSync('src/key.txt', 'utf-8');
+        let key = fs.readFileSync(keyPath, 'utf-8');
         let iv = crypto.randomBytes(16);
         let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key, 'hex'), iv);
         let encrypted = cipher.update(text);
@@ -235,7 +239,7 @@ module.exports = {
     decrypt: function(text) {
         let iv = text.substring(0,32);
         let data = text.substring(32);
-        let key = fs.readFileSync('src/key.txt', 'utf-8');
+        let key = fs.readFileSync(keyPath, 'utf-8');
         let encryptedText = Buffer.from(data, 'hex');
         let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key, 'hex'), Buffer.from(iv, 'hex'));
         let decrypted = decipher.update(encryptedText);
