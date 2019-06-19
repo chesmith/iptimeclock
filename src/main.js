@@ -7,6 +7,9 @@ const util = require('./js/util.js');
 
 const os = require('os');
 
+const log = require('electron-log');
+const {autoUpdater} = require("electron-updater");
+
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const ipc = electron.ipcMain;
@@ -14,9 +17,35 @@ const ipc = electron.ipcMain;
 let mainWindow;
 let passcodeWindow;
 let settingsWindow;
+let autoUpdateInterval;
 
 let kioskMode = (os.platform() == 'linux');
 
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
+log.info('App starting...');
+
+function sendStatusToWindow(text) {
+    log.info(text);
+    mainWindow.webContents.send('alert', text);
+}
+
+autoUpdater.on('update-available', (info) => {
+    sendStatusToWindow('Update available');
+});
+
+autoUpdater.on('error', (err) => {
+    console.warn(`Error in auto-updater: ${err}`);
+    sendStatusToWindow(`Error in auto-updater`);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+    let log_message = "Download speed: " + progressObj.bytesPerSecond;
+    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+    sendStatusToWindow(`Downloaded ${progressObj.percent}%`);
+});
+  
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
         width: 800,
@@ -84,6 +113,10 @@ app.on('ready', () => {
             settingsWindow.webContents.send('loadTeam', err, teamMembers);
         });
     });
+
+    autoUpdateInterval = setInterval(() => {
+        autoUpdater.checkForUpdates();
+      }, 20000);    
 });
 
 ipc.on('displayPasscodeEntry', (evt) => {

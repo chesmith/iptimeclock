@@ -158,3 +158,7 @@ $('#settings').click(() => {
         }
     }
 });
+
+ipc.on('alert', (evt, text) => {
+    displayAlert(text);
+});
