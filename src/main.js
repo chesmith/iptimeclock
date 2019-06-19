@@ -45,7 +45,13 @@ autoUpdater.on('download-progress', (progressObj) => {
     log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
     sendStatusToWindow(`Downloaded ${progressObj.percent}%`);
 });
-  
+
+autoUpdater.on('update-downloaded', (info) => {
+    log.info('Quitting and installing update');
+    mainWindow.webContents.send('clear-alert');
+    autoUpdater.quitAndInstall();  
+});
+
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
         width: 800,
@@ -148,3 +154,4 @@ app.on('certificate-error', (event, webContents, url, error, certifiate, callbac
         callback(false);
     }
 });
+  
