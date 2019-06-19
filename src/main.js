@@ -31,6 +31,7 @@ function sendStatusToWindow(text) {
 }
 
 autoUpdater.on('update-available', (info) => {
+    clearInterval(autoUpdateInterval);
     sendStatusToWindow('Update available');
 });
 
@@ -40,12 +41,15 @@ autoUpdater.on('error', (err) => {
 });
 
 autoUpdater.on('download-progress', (progressObj) => {
-    let log_message = "Download speed: " + progressObj.bytesPerSecond;
-    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
     sendStatusToWindow(`Downloaded ${progressObj.percent}%`);
 });
-  
+
+autoUpdater.on('update-downloaded', (info) => {
+    log.info('Quitting and installing update');
+    mainWindow.webContents.send('clear-alert');
+    autoUpdater.quitAndInstall();  
+});
+
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
         width: 800,
@@ -148,3 +152,4 @@ app.on('certificate-error', (event, webContents, url, error, certifiate, callbac
         callback(false);
     }
 });
+  

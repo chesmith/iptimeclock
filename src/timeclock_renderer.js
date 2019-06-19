@@ -162,3 +162,7 @@ $('#settings').click(() => {
 ipc.on('alert', (evt, text) => {
     displayAlert(text);
 });
+
+ipc.on('clear-alert', (evt) => {
+    clearAlert();
+});
