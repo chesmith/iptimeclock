@@ -1,19 +1,21 @@
 {
   "name": "iptimeclock",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "src/main.js",
   "description": "Iron Plaid Timeclock",
   "author": "Che Smith",
   "scripts": {
     "start": "electron .",
     "build": "build",
-    "publish": "build -p always"
+    "build.all": "build --win --linux",
+    "publish": "build -p always",
+    "publish.all": "build --win --linux -p always"
   },
   "keywords": [],
   "license": "MIT",
   "devDependencies": {
     "electron": "^5.0.4",
-    "electron-builder": "^20.43.0"
+    "electron-builder": "^20.44.2"
   },
   "dependencies": {
     "axios": "^0.19.0",
@@ -48,6 +50,9 @@
         }
       ]
     },
+    "extraResources": [
+      "config.json"
+    ],
     "files": [
       "**/*",
       "!**/.vscode/*",

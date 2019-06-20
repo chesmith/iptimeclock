@@ -6,12 +6,19 @@ const wifi = require('node-wifi');
 const axios = require('axios');
 const querystring = require('querystring');
 const nodemailer = require('nodemailer');
-const config = require('./config.js');
 const fs = require('fs');
+const path = require('path');
 
 var electron = require('electron').remote;
 if(typeof electron == 'undefined') { electron = require('electron'); }
-const keyPath = require('path').join(electron.app.getPath("userData"), 'key.txt');
+
+const keyPath = path.join(electron.app.getPath('userData'), 'key.txt');
+
+var configPath = path.join(process.resourcesPath, 'config.json');
+if(!fs.existsSync(configPath)) {
+    //if config doesn't exist in the userData directory, assume dev mode (config in app root dir)
+    configPath = path.join(electron.app.getAppPath(), 'config.json');
+}
 
 module.exports = {
     formatTime: function (timeToFormat) {
@@ -32,6 +39,7 @@ module.exports = {
     },
 
     dbexec: function (sql, values, callback) {
+        var config = JSON.parse(fs.readFileSync(configPath));
         let con = mysql.createConnection({
             host: config.db.host,
             user: this.decrypt(config.db.user),
@@ -119,6 +127,8 @@ module.exports = {
     },
 
     connectWifi: function (callback) {
+        var config = JSON.parse(fs.readFileSync(configPath));
+
         const maxretries = 10;
 
         wifi.init({
@@ -172,6 +182,7 @@ module.exports = {
     },
 
     emailMentors: function (reportOptions, displayMessage) {
+        var config = JSON.parse(fs.readFileSync(configPath));
         var transporter = nodemailer.createTransport({
             host: this.decrypt(config.email.host),
             port: config.email.port,

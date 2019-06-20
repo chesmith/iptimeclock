@@ -2,8 +2,9 @@ const electron = require('electron');
 
 const clock = require('./js/clock.js');
 const team = require('./js/team.js');
-const config = require('./js/config.js');
 const util = require('./js/util.js');
+const fs = require('fs');
+const path = require('path');
 
 const os = require('os');
 
@@ -25,30 +26,11 @@ autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 log.info('App starting...');
 
-function sendStatusToWindow(text) {
-    log.info(text);
-    mainWindow.webContents.send('alert', text);
+var configPath = path.join(process.resourcesPath, 'config.json');
+if(!fs.existsSync(configPath)) {
+    //if config doesn't exist in the userData directory, assume dev mode (config in app root dir)
+    configPath = path.join(app.getAppPath(), 'config.json');
 }
-
-autoUpdater.on('update-available', (info) => {
-    clearInterval(autoUpdateInterval);
-    sendStatusToWindow('Update available');
-});
-
-autoUpdater.on('error', (err) => {
-    console.warn(`Error in auto-updater: ${err}`);
-    sendStatusToWindow(`Error in auto-updater`);
-});
-
-autoUpdater.on('download-progress', (progressObj) => {
-    sendStatusToWindow(`Downloaded ${progressObj.percent}%`);
-});
-
-autoUpdater.on('update-downloaded', (info) => {
-    log.info('Quitting and installing update');
-    mainWindow.webContents.send('clear-alert');
-    autoUpdater.quitAndInstall();  
-});
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
@@ -120,7 +102,7 @@ app.on('ready', () => {
 
     autoUpdateInterval = setInterval(() => {
         autoUpdater.checkForUpdates();
-      }, 20000);    
+      }, 20000);
 });
 
 ipc.on('displayPasscodeEntry', (evt) => {
@@ -144,6 +126,7 @@ ipc.on('set-id', (evt, id) => {
 });
 
 app.on('certificate-error', (event, webContents, url, error, certifiate, callback) => {
+    var config = JSON.parse(fs.readFileSync(configPath));
     if (url === util.decrypt(config.wifi.portalUrl)) {
         //ignore certificate errors, since this uses a self-signed cert
         event.preventDefault();
@@ -152,4 +135,28 @@ app.on('certificate-error', (event, webContents, url, error, certifiate, callbac
         callback(false);
     }
 });
-  
+
+function sendStatusToWindow(text) {
+    log.info(text);
+    mainWindow.webContents.send('alert', text);
+}
+
+autoUpdater.on('update-available', (info) => {
+    clearInterval(autoUpdateInterval);
+    sendStatusToWindow('Update available');
+});
+
+autoUpdater.on('error', (err) => {
+    console.warn(`Error in auto-updater: ${err}`);
+    sendStatusToWindow(`Error in auto-updater`);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+    sendStatusToWindow(`Downloaded ${progressObj.percent}%`);
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+    log.info('Quitting and installing update');
+    mainWindow.webContents.send('clear-alert');
+    autoUpdater.quitAndInstall();  
+});
