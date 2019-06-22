@@ -8,6 +8,8 @@ const path = require('path');
 
 const os = require('os');
 
+const config = require('./js/config.js');
+
 const log = require('electron-log');
 const {autoUpdater} = require("electron-updater");
 
@@ -25,12 +27,6 @@ let kioskMode = (os.platform() == 'linux');
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 log.info('App starting...');
-
-var configPath = path.join(process.resourcesPath, 'config.json');
-if(!fs.existsSync(configPath)) {
-    //if config doesn't exist in the userData directory, assume dev mode (config in app root dir)
-    configPath = path.join(app.getAppPath(), 'config.json');
-}
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
@@ -126,8 +122,7 @@ ipc.on('set-id', (evt, id) => {
 });
 
 app.on('certificate-error', (event, webContents, url, error, certifiate, callback) => {
-    var config = JSON.parse(fs.readFileSync(configPath));
-    if (url === util.decrypt(config.wifi.portalUrl)) {
+    if (url === config.wifi[config.selectedWifi].portalUrl) {
         //ignore certificate errors, since this uses a self-signed cert
         event.preventDefault();
         callback(true);

@@ -7,18 +7,11 @@ const axios = require('axios');
 const querystring = require('querystring');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
-const path = require('path');
+
+const config = require('./config.js');
 
 var electron = require('electron').remote;
 if(typeof electron == 'undefined') { electron = require('electron'); }
-
-const keyPath = path.join(electron.app.getPath('userData'), 'key.txt');
-
-var configPath = path.join(process.resourcesPath, 'config.json');
-if(!fs.existsSync(configPath)) {
-    //if config doesn't exist in the userData directory, assume dev mode (config in app root dir)
-    configPath = path.join(electron.app.getAppPath(), 'config.json');
-}
 
 module.exports = {
     formatTime: function (timeToFormat) {
@@ -39,11 +32,10 @@ module.exports = {
     },
 
     dbexec: function (sql, values, callback) {
-        var config = JSON.parse(fs.readFileSync(configPath));
         let con = mysql.createConnection({
             host: config.db.host,
-            user: this.decrypt(config.db.user),
-            password: this.decrypt(config.db.password),
+            user: config.db.user,
+            password: config.db.password,
             database: 'TIMECLOCK'
         });
         let insert = sql.toUpperCase().startsWith('INSERT');
@@ -127,15 +119,13 @@ module.exports = {
     },
 
     connectWifi: function (callback) {
-        var config = JSON.parse(fs.readFileSync(configPath));
-
         const maxretries = 10;
 
         wifi.init({
             iface: null
         });
 
-        wifi.connect({ ssid: this.decrypt(config.wifi.SSID), password: this.decrypt(config.wifi.pass) }, (err) => {
+        wifi.connect({ ssid: config.wifi[config.selectedWifi].SSID, password: config.wifi[config.selectedWifi].pass }, (err) => {
             if (err) {
                 console.error(`unable to connect to wifi: ${err}`);
             }
@@ -153,12 +143,12 @@ module.exports = {
                             }
                             else if (online == 2 || online == 3) {
                                 let data = querystring.stringify({
-                                    username: this.decrypt(config.wifi.user),
-                                    password: this.decrypt(config.wifi.pass),
+                                    username: config.wifi[config.selectedWifi].user,
+                                    password: config.wifi[config.selectedWifi].pass,
                                     buttonClicked: '4'
                                 });
 
-                                axios.post(this.decrypt(config.wifi.portalUrl), data)
+                                axios.post(config.wifi[config.selectedWifi].portalUrl, data)
                                     .then((res) => {
                                         // clearInterval(retryInterval);
                                         // if(typeof callback != 'undefined') callback();
@@ -182,11 +172,10 @@ module.exports = {
     },
 
     emailMentors: function (reportOptions, displayMessage) {
-        var config = JSON.parse(fs.readFileSync(configPath));
         var transporter = nodemailer.createTransport({
-            host: this.decrypt(config.email.host),
+            host: config.email.host,
             port: config.email.port,
-            auth: { user: this.decrypt(config.email.user), pass: this.decrypt(config.email.pass) },
+            auth: { user: config.email.user, pass: config.email.pass },
             secure: config.email.secure
         });
 
@@ -206,7 +195,7 @@ module.exports = {
                 });
                 if (recipients.length > 0) {
                     var mailOptions = {
-                        from: this.decrypt(config.email.from),
+                        from: config.email.from,
                         to: recipients,
                         subject: reportOptions.subject,
                         html: `${reportOptions.body}<p>Report triggered by ${triggerName}</p>`
@@ -236,25 +225,5 @@ module.exports = {
                 displayMessage(err, '');
             }
         });
-    },
-
-    encrypt: function(text) {
-        let key = fs.readFileSync(keyPath, 'utf-8');
-        let iv = crypto.randomBytes(16);
-        let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key, 'hex'), iv);
-        let encrypted = cipher.update(text);
-        encrypted = Buffer.concat([encrypted, cipher.final()]);
-        return { iv: iv.toString('hex'), data: encrypted.toString('hex') }
-    },
-    
-    decrypt: function(text) {
-        let iv = text.substring(0,32);
-        let data = text.substring(32);
-        let key = fs.readFileSync(keyPath, 'utf-8');
-        let encryptedText = Buffer.from(data, 'hex');
-        let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key, 'hex'), Buffer.from(iv, 'hex'));
-        let decrypted = decipher.update(encryptedText);
-        decrypted = Buffer.concat([decrypted, decipher.final()]);
-        return decrypted.toString();
     }
 }

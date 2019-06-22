@@ -1,6 +1,6 @@
 {
   "name": "iptimeclock",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "src/main.js",
   "description": "Iron Plaid Timeclock",
   "author": "Che Smith",
@@ -50,9 +50,6 @@
         }
       ]
     },
-    "extraResources": [
-      "config.json"
-    ],
     "files": [
       "**/*",
       "!**/.vscode/*",
