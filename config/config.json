@@ -14,44 +14,25 @@
         "from": "b57f73fa9848b0b54c97b701e452eb11d140f0dd4e327826cafe4dd8d8b6187367c31efe07e85b3f654ecbfe1acad28b"
     },
 
-    "wifi": {
-        "SSID": "fc6b327c637895b5a1b5a9d8fbda3d5e459c77d9fd3448103cf145ba0b838c90",
-        "user": "342e9d0c347df10b0bf22c027e8108f0ef407783574caa730a73a9cd5a02faeb",
-        "pass": "c2aa6f4c31c26c058cf3e1c0fcd19f89382bf7da5c49c6d45c6135bd936b1402",
-        "portalUrl": "f2e294e0ef4084cd1d51eac08fa904bbe9b7e21e945519fbeb2f115b0b5433790f4dcad6f274942549b1a715398e23a9"
-    },
+    "selectedWifi": "SHINE-ON",
 
-    "wifi.H": {
-        "SSID": "79306345a0ab28aeae57dd84870310a16030297b08afcb9fbfd18bbd20efd3c2",
-        "user": "",
-        "pass": "c3f5513ca768b37ee65745609df799cdd1d790475cfb1c464db66f060c3900ef514ebce33f719ff9f33d6ea6d84513d3",
-        "portalUrl": ""
-    },
-
-    "wifi.S": {
-        "SSID": "",
-        "user": "",
-        "pass": "4fc9a5e440f5520779377bcba273be2261edd5623880ae26ab57dbb8ee17e5d8",
-        "portalUrl": ""
-    },
-
-    "wifi.all": [
+    "knownWifi": [
         {
-            "SSID": "fc6b327c637895b5a1b5a9d8fbda3d5e459c77d9fd3448103cf145ba0b838c90",
+            "SSID": "Duchesne-Guest",
+            "user": "",
+            "pass": "4fc9a5e440f5520779377bcba273be2261edd5623880ae26ab57dbb8ee17e5d8",
+            "portalUrl": ""
+        },
+        {
+            "SSID": "WKGUEST001",
             "user": "342e9d0c347df10b0bf22c027e8108f0ef407783574caa730a73a9cd5a02faeb",
             "pass": "c2aa6f4c31c26c058cf3e1c0fcd19f89382bf7da5c49c6d45c6135bd936b1402",
             "portalUrl": "f2e294e0ef4084cd1d51eac08fa904bbe9b7e21e945519fbeb2f115b0b5433790f4dcad6f274942549b1a715398e23a9"
         },
         {
-            "SSID": "79306345a0ab28aeae57dd84870310a16030297b08afcb9fbfd18bbd20efd3c2",
+            "SSID": "SHINE-ON",
             "user": "",
             "pass": "c3f5513ca768b37ee65745609df799cdd1d790475cfb1c464db66f060c3900ef514ebce33f719ff9f33d6ea6d84513d3",
-            "portalUrl": ""
-        },
-        {
-            "SSID": "",
-            "user": "",
-            "pass": "4fc9a5e440f5520779377bcba273be2261edd5623880ae26ab57dbb8ee17e5d8",
             "portalUrl": ""
         }
     ]
