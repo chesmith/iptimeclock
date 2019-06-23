@@ -146,6 +146,7 @@ ipc.on('loadTeam', (evt, err, teamMembers) => {
                 teamMemberList.add(option);
             }
         });
+        showSettings(false);
     }
 });
 
