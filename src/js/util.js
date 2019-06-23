@@ -66,7 +66,7 @@ module.exports = {
 
     validatePasscode: function (id, passcode, callback) {
         let hash = crypto.createHash('sha256');
-        hash.update(passcode);
+        hash.update(id + passcode);
 
         let sql = `SELECT COUNT(*) AS valid FROM teammembers WHERE role = 'mentor' AND id = ? AND passcode = ?`;
         this.dbexec(sql, [id, hash.digest('hex')], (err, results) => {

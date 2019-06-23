@@ -142,8 +142,8 @@ autoUpdater.on('update-available', (info) => {
 });
 
 autoUpdater.on('error', (err) => {
-    console.warn(`Error in auto-updater: ${err}`);
-    sendStatusToWindow(`Error in auto-updater`);
+    console.warn(`Error in auto-updater - check log`);
+    // sendStatusToWindow(`Error in auto-updater`);
 });
 
 autoUpdater.on('download-progress', (progressObj) => {

@@ -39,6 +39,12 @@ function populateTeamMemberList(err, teamMembers) {
                 option.setAttribute('data-active', member.active);
                 option.setAttribute('data-punchtype', member.punchtype);
                 option.setAttribute('data-punchtime', member.punchtime);
+                if (member.role == 'mentor' && member.passcode.length > 0) {
+                    option.setAttribute('data-passcode', '********');
+                }
+                else {
+                    option.setAttribute('data-passcode', '');
+                }
                 option.text = `  ${(member.role == 'mentor' ? 'Mentor: ' : '')}${member.lastname}, ${member.firstname}`;
                 if (!member.active) {
                     option.text += ' (inactive)';
@@ -61,6 +67,9 @@ function populateDetails() {
     $('#active').prop('checked', (selectedOption.getAttribute('data-active') == '1'));
     $('#student').prop('checked', (selectedOption.getAttribute('data-role') == 'student'));
     $('#mentor').prop('checked', (selectedOption.getAttribute('data-role') == 'mentor'));
+    $('#passcode').val(selectedOption.getAttribute('data-passcode'));
+
+    enablePasscode(selectedOption.getAttribute('data-role') == 'mentor');
 
     let punchtype = selectedOption.getAttribute('data-punchtype');
     let lastPunchMessage = '';
@@ -112,16 +121,48 @@ $('#addNew').click(() => {
     clearFields();
 });
 
+$('#passcode').click(() => {
+    $('#passcode').select();
+});
+
+$("input:radio[name='role']").change(() => {
+    let role = $("input:radio[name ='role']:checked").val();
+    if (typeof role == 'undefined') role = '';
+
+    enablePasscode(role == 'mentor');
+});
+
+function enablePasscode(enable) {
+    if (enable) {
+        $('#passcode').prop('disabled', false);
+        $('#passcode').css({ 'background-color': 'white' });
+    }
+    else {
+        $('#passcode').prop('disabled', true);
+        $('#passcode').css({ 'background-color': 'gray' });
+    }
+}
+
 $('#save').click(() => {
     validateFields(() => {
         if (teamMemberList.selectedIndex > -1) {
-            updateTeamMember(selectedMemberId, () => {
-                displayMessage('updated');
+            updateTeamMember((err) => {
+                if(!err) {
+                    displayMessage('Updated');
+                }
+                else {
+                    displayMessage('Error updating');
+                }
             });
         }
         else {
-            addTeamMember(() => {
-                displayMessage('added')
+            addTeamMember((err) => {
+                if(!err) {
+                    displayMessage('Added');
+                }
+                else {
+                    displayMessage('Error adding');
+                }
             });
         }
     });
@@ -131,7 +172,7 @@ function validateFields(callback) {
     let role = $("input:radio[name ='role']:checked").val();
     if (typeof role == 'undefined') role = '';
 
-    if ($('#firstname').val().length > 0 && $('#lastname').val().length > 0 && role.length > 0) {
+    if ($('#firstname').val().length > 0 && $('#lastname').val().length > 0 && role.length > 0 && ($('#passcode').val().length == 0 || $('#passcode').val().length == 4)) {
         callback();
     }
     else {
@@ -159,6 +200,8 @@ function clearFields() {
     $('#firstname').val('');
     $('#lastname').val('');
     $('#email').val('');
+    $('#passcode').val('');
+    enablePasscode(false);
     $('#student').prop('checked', false);
     $('#mentor').prop('checked', false);
     $('#active').prop('checked', true);
@@ -177,24 +220,25 @@ function displayMessage(text) {
     });
 }
 
-function addTeamMember() {
+function addTeamMember(callback) {
     let role = $("input:radio[name ='role']:checked").val();
     if (typeof role == 'undefined') role = 'student';
 
-    team.add($('#firstname').val(), $('#lastname').val(), $('#email').val(), role, (err, id) => {
+    team.add($('#firstname').val(), $('#lastname').val(), $('#email').val(), $('#passcode').val(), role, (err, id) => {
         if (!err) {
             selectedMemberId = id;
             $('#loading').show();
             team.load(populateTeamMemberList);
         }
+        callback(err);
     });
 }
 
-function updateTeamMember() {
+function updateTeamMember(callback) {
     let role = $("input:radio[name ='role']:checked").val();
     if (typeof role == 'undefined') role = 'student';
 
-    team.update(selectedMemberId, $('#firstname').val(), $('#lastname').val(), $('#email').val(), role, $('#active').prop('checked'), (err) => {
+    team.update(selectedMemberId, $('#firstname').val(), $('#lastname').val(), $('#email').val(), $('#passcode').val(), role, $('#active').prop('checked'), (err) => {
         if (!err) {
             if (!$('#active').prop('checked') && !$('#showInactive').prop('checked')) {
                 //if currently selected member has been deactivated and we're not showing active, reset everything and remove that team member
@@ -208,6 +252,7 @@ function updateTeamMember() {
                 selectedOption.setAttribute('data-firstname', $('#firstname').val());
                 selectedOption.setAttribute('data-lastname', $('#lastname').val());
                 selectedOption.setAttribute('data-email', $('#email').val());
+                selectedOption.setAttribute('data-passcode', ($('#passcode').val().length > 0 ? '********' : ''));
                 selectedOption.setAttribute('data-role', role);
                 selectedOption.setAttribute('data-active', ($('#active').prop('checked') ? '1' : '0'));
                 selectedOption.text = ` ${(role == 'mentor' ? 'Mentor: ' : '')}${$('#lastname').val()}, ${$('#firstname').val()}`;
@@ -216,6 +261,7 @@ function updateTeamMember() {
                 }
             }
         }
+        callback(err);
     });
 }
 
@@ -276,7 +322,7 @@ $('input[name=timeframe]').change(() => {
 $('#transmitReport').click(() => {
     var fromdate = $('#datetimepicker1').datetimepicker('date');
     var todate = $('#datetimepicker2').datetimepicker('date');
-    if(fromdate == null || todate == null) {
+    if (fromdate == null || todate == null) {
         displayMessage('Please select a valid date range');
     }
 
