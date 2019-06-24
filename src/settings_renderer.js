@@ -224,7 +224,7 @@ function addTeamMember(callback) {
     let role = $("input:radio[name ='role']:checked").val();
     if (typeof role == 'undefined') role = 'student';
 
-    team.add($('#firstname').val(), $('#lastname').val(), $('#email').val(), $('#passcode').val(), role, (err, id) => {
+    team.add($('#firstname').val(), $('#lastname').val(), $('#email').val(), $('#passcode').val(), role, mentorId, (err, id) => {
         if (!err) {
             selectedMemberId = id;
             $('#loading').show();
@@ -238,7 +238,7 @@ function updateTeamMember(callback) {
     let role = $("input:radio[name ='role']:checked").val();
     if (typeof role == 'undefined') role = 'student';
 
-    team.update(selectedMemberId, $('#firstname').val(), $('#lastname').val(), $('#email').val(), $('#passcode').val(), role, $('#active').prop('checked'), (err) => {
+    team.update(selectedMemberId, $('#firstname').val(), $('#lastname').val(), $('#email').val(), $('#passcode').val(), role, $('#active').prop('checked'), mentorId, (err) => {
         if (!err) {
             if (!$('#active').prop('checked') && !$('#showInactive').prop('checked')) {
                 //if currently selected member has been deactivated and we're not showing active, reset everything and remove that team member

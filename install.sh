@@ -84,11 +84,13 @@ printf "    lastname VARCHAR(25) NOT NULL,\n" >> createdb.sh
 printf "    firstname VARCHAR(25) NOT NULL,\n" >> createdb.sh
 printf "    email VARCHAR(255) DEFAULT '',\n" >> createdb.sh
 printf "    role VARCHAR(10) DEFAULT 'student',\n" >> createdb.sh
-printf "    passcode VARCHAR(256) DEFAUILT '',\n" >> createdb.sh
+printf "    passcode VARCHAR(256) DEFAULT '',\n" >> createdb.sh
 printf "    active BOOLEAN DEFAULT TRUE,\n" >> createdb.sh
 printf "    deleted BOOLEAN DEFAULT FALSE,\n" >> createdb.sh
 printf "    created DATETIME DEFAULT CURRENT_TIMESTAMP,\n" >> createdb.sh
+printf "    created_by SMALLINT DEFAULT 0,\n" >> createdb.sh
 printf "    updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n" >> createdb.sh
+printf "    updated_by SMALLINT DEFAULT 0,\n" >> createdb.sh
 printf "    PRIMARY KEY (id)\n" >> createdb.sh
 printf ");\n" >> createdb.sh
 
@@ -97,6 +99,7 @@ printf "    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,\n" >> createdb.sh
 printf "    memberid SMALLINT UNSIGNED NOT NULL,\n" >> createdb.sh
 printf "    punchtype TINYINT(1) NOT NULL,\n" >> createdb.sh
 printf "    created DATETIME DEFAULT CURRENT_TIMESTAMP,\n" >> createdb.sh
+printf "    updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n" >> createdb.sh
 printf "    PRIMARY KEY (id)\n" >> createdb.sh
 printf ");\n" >> createdb.sh
 
