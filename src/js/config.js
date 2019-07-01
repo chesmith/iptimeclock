@@ -39,16 +39,17 @@ config.email = {
 config.wifi = {};
 for (var i = 0; i < data.knownWifi.length; i++) {
     var wifi = {
-        SSID: data.knownWifi[i].SSID,
+        SSID: decrypt(data.knownWifi[i].SSID),
         user: decrypt(data.knownWifi[i].user),
         pass: decrypt(data.knownWifi[i].pass),
-        portalUrl: decrypt(data.knownWifi[i].portalUrl)
+        portalUrl: decrypt(data.knownWifi[i].portalUrl),
+        type: data.knownWifi[i].type
     };
 
     config.wifi[wifi.SSID] = wifi;
 }
 
-config.selectedWifi = data.selectedWifi;
+config.selectedWifi = decrypt(data.selectedWifi);
 
 module.exports = config;
 
