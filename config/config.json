@@ -14,26 +14,29 @@
         "from": "b57f73fa9848b0b54c97b701e452eb11d140f0dd4e327826cafe4dd8d8b6187367c31efe07e85b3f654ecbfe1acad28b"
     },
 
-    "selectedWifi": "SHINE-ON",
+    "selectedWifi": "1190423ffd5ffda09845829d0823863cdd27daec593fafa83ad16c54760e345c",
 
     "knownWifi": [
         {
-            "SSID": "Duchesne-Guest",
+            "SSID": "ab73b894bfff36a904672787e666278be82728b252ef1c683bd3f61a4f79e727",
             "user": "",
-            "pass": "4fc9a5e440f5520779377bcba273be2261edd5623880ae26ab57dbb8ee17e5d8",
-            "portalUrl": ""
+            "pass": "",
+            "portalUrl": "116d5f5c9205ff722e2fda5e7b94b53377207983076e559a02672afbad758a04e4c9a51ea0c067ee473ca3d6df3b157ce23aa823fdba9a3ba9ccd577ff0c3ccce154a241433914d40c19d4244b8854be176689155333cdfef45fd469492a580b",
+            "type": "ruckus"
         },
         {
-            "SSID": "WKGUEST001",
+            "SSID": "cddff36f43db4895cb6dbfd472ac4864c8b128538a792d42a3893019a84b906b",
             "user": "342e9d0c347df10b0bf22c027e8108f0ef407783574caa730a73a9cd5a02faeb",
             "pass": "c2aa6f4c31c26c058cf3e1c0fcd19f89382bf7da5c49c6d45c6135bd936b1402",
-            "portalUrl": "f2e294e0ef4084cd1d51eac08fa904bbe9b7e21e945519fbeb2f115b0b5433790f4dcad6f274942549b1a715398e23a9"
+            "portalUrl": "f2e294e0ef4084cd1d51eac08fa904bbe9b7e21e945519fbeb2f115b0b5433790f4dcad6f274942549b1a715398e23a9",
+            "type": "cisco"
         },
         {
-            "SSID": "SHINE-ON",
+            "SSID": "1190423ffd5ffda09845829d0823863cdd27daec593fafa83ad16c54760e345c",
             "user": "",
             "pass": "c3f5513ca768b37ee65745609df799cdd1d790475cfb1c464db66f060c3900ef514ebce33f719ff9f33d6ea6d84513d3",
-            "portalUrl": ""
+            "portalUrl": "",
+            "type": "wpa2"
         }
     ]
 }

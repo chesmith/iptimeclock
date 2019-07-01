@@ -8,39 +8,35 @@ echo "  4. Set 'Size when minimized' to 0"
 echo ""
 echo "Have you done this? (y/N)"
 read reply
+echo ""
 
-if ["$reply" == ""] || ["$reply" == "n"] && ["$reply" == "N"]; then
+if [ "$reply" == "" ] || [ "$reply" == "n" ] || [ "$reply" == "N" ]; then
     exit 1
 fi
 
-echo "GitHub repository name:"
-read repo
+read -p "GitHub repository name......: " repo
+echo ""
+read -p "App database user ID........: " dbuser
+echo ""
+read -p "App database user password..: " dbpass
+echo ""
+read -p "Root database password......: " dbrootpass
 echo ""
 
-echo "Root database password:"
-read dbrootpass
-echo ""
-
-echo "Application database user ID:"
-read dbuser
-echo ""
-
-echo "Application database user password:"
-read dbpass
-
-echo "Do you have a speaker pHAT installed? (Y/n)"
-read speaker
-
-if ["$repo" == ""] || ["$dbrootpass" = ""] || ["$dbuser"==""] || ["$dbpass"==""]; then
+if [ "$repo" == "" ] || [ "$dbrootpass" == "" ] || [ "$dbuser" == "" ] || [ "$dbpass" == "" ]; then
     echo "You didn't provide an answer to one of the above prompts.  Please try again."
     exit 1
 fi
+
+read -p "Do you have a speaker pHAT installed? (Y/n) " -n1 speaker
+echo ""
 
 echo -e "\e[30;48;5;82m ##Display \e[0m"
 ## Display
 echo -e "\e[30;48;5;82m ### Rotate the LCD \e[0m"
 ### Rotate the LCD
 printf "\nlcd_rotate=2" | sudo tee -a /boot/config.txt
+echo ""
 
 ### Auto-hide the taskbar
 #TODO: this file won't exist unless the user has accessed the GUI, anyway, so we can't do this here
@@ -71,7 +67,7 @@ sudo /etc/init.d/mysql restart
 echo -e "\e[30;48;5;82m ### Create Database User and Tables \e[0m"
 ### Create Database User and Tables
 printf "#!/bin/bash\n" > createdb.sh
-printf "mysql -p $dbrootpass -u root << EOF\n" >> createdb.sh
+printf "mysql -p$dbrootpass -u root << EOF\n" >> createdb.sh
 printf "CREATE USER $dbuser@localhost IDENTIFIED BY '$dbpass';\n" >> createdb.sh
 printf "CREATE DATABASE timeclock;\n" >> createdb.sh
 printf "GRANT ALL PRIVILEGES ON timeclock.* TO $dbuser@localhost;\n" >> createdb.sh
@@ -104,7 +100,7 @@ printf "    PRIMARY KEY (id)\n" >> createdb.sh
 printf ");\n" >> createdb.sh
 
 printf "INSERT INTO teammembers (firstname, lastname, role, passcode)\n" >> createdb.sh
-printf "VALUES ('Default', 'Mentor', 'mentor', SHA2('5555','256'));\n" >> createdb.sh
+printf "VALUES ('Default', 'Mentor', 'mentor', SHA2('15555',256));\n" >> createdb.sh
 
 # Make sure that NOBODY can access the server without a password
 printf "UPDATE mysql.user SET Password = PASSWORD('$dbrootpass') WHERE User = 'root';\n" >> createdb.sh
@@ -112,6 +108,8 @@ printf "UPDATE mysql.user SET Password = PASSWORD('$dbrootpass') WHERE User = 'r
 printf "DELETE FROM mysql.user WHERE User='';\n" >> createdb.sh
 # Disallow root login remotely
 printf "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');\n" >> createdb.sh
+# Ensure root requires password (remove the unix_socket plugin entry if there)
+printf "UPDATE mysql.user SET plugin=null WHERE user='root';\n" >> createdb.sh
 # Drop the test database
 printf "DROP DATABASE IF EXISTS test;\n" >> createdb.sh
 # Make our changes take effect
@@ -138,26 +136,30 @@ mkdir -p ~/src
 git clone https://github.com/$repo/iptimeclock ~/src/iptimeclock
 mkdir ~/.config/iptimeclock
 cp ~/src/iptimeclock/config/* ~/.config/iptimeclock
-echo Please enter the decryption key:
-read key
-echo $key > ~/.config/iptimeclock/key.txt
+if [ -f key.txt ]; then
+    echo "#### Using the key.txt file from boot directory"
+    cat key.txt > ~/.config/timeclock/key.txt
+else
+    read -p "Please enter the decryption key: " key
+    echo $key > ~/.config/iptimeclock/key.txt
+fi
 
 echo -e "\e[30;48;5;82m ## Autostart \e[0m"
 ## Autostart
 mkdir ~/.config/autostart
 printf "[Desktop Entry]\nType=Application\nName=iptimeclock autostart\nComment=Iron Plaid Timeclock\nNoDisplay=false\nExec=/home/pi/iptimeclock" > ~/.config/autostart/iptimeclock.desktop
 
+if [ "$speaker" == "" ] || [ "$speaker" == "y" ] || [ "$speaker" != "Y" ]; then
+    echo -e "\e[30;48;5;82m ## Speaker pHAT \e[0m"
+    ## Speaker pHAT
+    curl -sS https://get.pimoroni.com/speakerphat | bash
+fi
+
 echo -e "\e[30;48;5;82m ## WiFi \e[0m"
 ## WiFi
 sudo apt-get install -y network-manager
 sudo systemctl disable dhcpcd
 sudo systemctl stop dhcpcd
-
-if ["$speaker" == ""] || ["$speaker" == "y"] || ["$speaker" != "Y"]; then
-    echo -e "\e[30;48;5;82m ## Speaker pHAT \e[0m"
-    ## Speaker pHAT
-    curl -sS https://get.pimoroni.com/speakerphat | bash
-fi
 
 echo -e "\e[30;48;5;82m ## Additional OS configuration \e[0m"
 ## Additional OS configuration
@@ -166,4 +168,6 @@ sudo raspi-config nonint do_ssh 0
 sudo raspi-config nonint do_vnc 0
 sudo raspi-config nonint do_hostname iptimeclock
 
-echo "*** Restart when you're ready.  After restart, you'll need to connect to wifi manually TODO"
+echo ""
+echo -e "\e[30;48;5;82m*** Restart when you're ready.  After restart, you'll need to connect to wifi manually:\e[0m"
+echo -e "\e[30;48;5;82m*** e.g. nmcli dev wifi con \"ssid\" password \"p455w04d\"\e[0m"
