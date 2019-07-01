@@ -3,15 +3,20 @@ const crypto = require('crypto');
 const dns = require('dns');
 const http = require('http');
 const wifi = require('node-wifi');
-const axios = require('axios');
 const querystring = require('querystring');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
-
 const config = require('./config.js');
 
+const axios = require('axios');
+const axiosCookieJarSupport = require('axios-cookiejar-support').default;
+const tough = require('tough-cookie');
+axiosCookieJarSupport(axios);
+
+const cookieJar = new tough.CookieJar();
+
 var electron = require('electron').remote;
-if(typeof electron == 'undefined') { electron = require('electron'); }
+if (typeof electron == 'undefined') { electron = require('electron'); }
 
 module.exports = {
     formatTime: function (timeToFormat) {
@@ -142,20 +147,42 @@ module.exports = {
                                 callback();
                             }
                             else if (online == 2 || online == 3) {
-                                let data = querystring.stringify({
-                                    username: config.wifi[config.selectedWifi].user,
-                                    password: config.wifi[config.selectedWifi].pass,
-                                    buttonClicked: '4'
-                                });
-
-                                axios.post(config.wifi[config.selectedWifi].portalUrl, data)
-                                    .then((res) => {
-                                        // clearInterval(retryInterval);
-                                        // if(typeof callback != 'undefined') callback();
-                                    })
-                                    .catch((error) => {
-                                        console.warn(`problem posting to capture portal: ${error}`);
+                                if (config.wifi[config.selectedWifi].type == "cisco") {
+                                    let data = querystring.stringify({
+                                        username: config.wifi[config.selectedWifi].user,
+                                        password: config.wifi[config.selectedWifi].pass,
+                                        buttonClicked: '4'
                                     });
+
+                                    axios.post(config.wifi[config.selectedWifi].portalUrl, data)
+                                        .then((res) => {
+                                            // clearInterval(retryInterval);
+                                            // if(typeof callback != 'undefined') callback();
+                                        })
+                                        .catch((error) => {
+                                            console.warn(`problem posting to capture portal: ${error}`);
+                                        });
+                                }
+                                else if (config.wifi[config.selectedWifi].type == "ruckus") {
+                                    axios.get(config.wifi[config.selectedWifi].portalUrl, { jar: cookieJar, withCredentials: true })
+                                        .then((res) => {
+                                            if (res.config.url.includes('guest_authed')) {
+                                                axios.get(res.config.url.replace('guest_authed', '_allowguest'), {
+                                                    jar: cookieJar,
+                                                    withCredentials: true,
+                                                })
+                                                    .then((res) => {
+                                                        // console.log('success');
+                                                    })
+                                                    .catch((err) => {
+                                                        console.log(`error: ${err}`);
+                                                    });
+                                            }
+                                        })
+                                        .catch((err) => {
+                                            console.warn(`problem connecting via ruckus portal: ${err}`);
+                                        });
+                                }
                             }
 
                             if (retry > maxretries) {
@@ -190,7 +217,7 @@ module.exports = {
                     }
                     recipients += mentor.email;
 
-                    if(mentor.id == reportOptions.triggeredBy)
+                    if (mentor.id == reportOptions.triggeredBy)
                         triggerName = `${mentor.firstname} ${mentor.lastname}`;
                 });
                 if (recipients.length > 0) {
@@ -201,7 +228,7 @@ module.exports = {
                         html: `${reportOptions.body}<p>Report triggered by ${triggerName}</p>`
                     };
 
-                    if(typeof reportOptions.attachments != 'undefined' && reportOptions.attachments.length > 0) {
+                    if (typeof reportOptions.attachments != 'undefined' && reportOptions.attachments.length > 0) {
                         mailOptions['attachments'] = reportOptions.attachments;
                     }
 
