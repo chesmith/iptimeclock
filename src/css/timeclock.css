@@ -44,8 +44,9 @@ option {
     font-size: 96px;
     font-weight: 800;
     position: absolute;
-    top: -10px;
-    left: 0;
+    top: 10px;
+    left: 20px;
+    width: 778px;
     display:flex;
 }
 
@@ -56,8 +57,8 @@ option {
 
 #iplogo {
     position: absolute;
-    top: 185px;
-    left: 40px;
+    top: 175px;
+    left: 20px;
     height: 200px;
     z-index: -1;
 }
@@ -66,7 +67,7 @@ option {
     position: absolute;
     bottom: 30px;
     left: 0;
-    width: 520px;
+    width: 530px;
     border: none;
     opacity: 0.95;
 }
@@ -74,19 +75,19 @@ option {
 #clockIn {
     position: absolute;
     top: 20;
-    right: 20;
+    right: 10;
 }
 
 #clockOut {
     position: absolute;
     bottom: 20;
-    right: 20;
+    right: 10;
 }
 
 #settings {
     position: absolute;
-    left: 10;
-    bottom: 10;
+    left: -10;
+    bottom: -10;
     opacity: 0;
 }
 
@@ -94,22 +95,22 @@ option {
     position: absolute;
     font-weight: bold;
     color: red;
-    left: 50px;
-    bottom: 15px;
+    left: 30px;
+    bottom: -5px;
 }
 
 #message {
     position: absolute;
     color: yellow;
-    right: 255px;
-    bottom: 15px;
+    right: 235px;
+    bottom: -5px;
     display: none;
 }
 
 #online {
     position: absolute;
-    right: 0;
-    bottom: 0;
+    right: -20px;
+    bottom: -20px;
     font-size: 9px;
     color: grey;
 }

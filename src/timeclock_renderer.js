@@ -2,12 +2,16 @@ const electron = require('electron');
 const ipc = electron.ipcRenderer;
 const timeclock = require('./js/timeclock.js');
 const util = require('./js/util.js');
+const brightness = require ('brightness');
 window.$ = window.jQuery = require('jquery');
 
 let teamMemberList = document.getElementById('teamMember');
 
 let timerMessage;
 let timerAlert;
+
+let initialBrightness;
+brightness.get().then(level => { initialBrightness = level; });
 
 $('#online').text(`v${electron.remote.app.getVersion()}`);
 
@@ -167,3 +171,44 @@ ipc.on('alert', (evt, text) => {
 ipc.on('clear-alert', (evt) => {
     clearAlert();
 });
+
+function screensaver(active) {
+    if (active) {
+        $("#container").fadeOut();
+        $("#clock").animate({ 'font-size': '155px', 'top': '130px' }, 500);
+        $("#clock").css({ 'justify-content': 'center' });
+        $("#container").css('pointer-events', 'none');
+        brightness.set(initialBrightness * 0.25);
+    }
+    else {
+        brightness.set(initialBrightness);
+        //necessary to put this in a timeout, else a wake-up tap will still tap something
+        setTimeout(() => { $("#container").css('pointer-events', 'auto'); }, 500);
+        $("#clock").css({ 'justify-content': 'unset' });
+        $("#clock").animate({ 'font-size': '96px', 'top': '10px' }, 500);
+        $("#container").fadeIn();
+    }
+}
+
+function idleSetup() {
+    var t;
+    window.onload = resetTimer;
+    window.onmousemove = resetTimer;
+    window.onmousedown = resetTimer;  // catches touchscreen presses as well      
+    window.ontouchstart = resetTimer; // catches touchscreen swipes as well 
+    window.onclick = resetTimer;      // catches touchpad clicks as well
+    window.onkeypress = resetTimer;
+    window.addEventListener('scroll', resetTimer, true);
+
+    function resetTimer() {
+        screensaver(false);
+        clearTimeout(t);
+        t = setTimeout(onIdle, 300000);
+    }
+}
+
+function onIdle() {
+    screensaver(true);
+}
+
+idleSetup();
