@@ -4,20 +4,21 @@
         <link rel="stylesheet" href="css/timeclock.css" />
     </head>
     <body>
-        <img src="images/ip.png" id="iplogo">
+        <div id="clock"><div id="hour"></div><div id="colon" style="color:black">:</div><div id="minute"></div></div>
         <div id="container">
-            <div id="clock"><div id="hour"></div><div id="colon" style="color:black">:</div><div id="minute"></div></div>
+            <img src="images/ip.png" id="iplogo">
             <select id="teamMember" size="9"></select>
             <div class="btn" id="clockIn" style="background: rgba(255,0,0,0.85);">Clock In<p><img src="images/in.png"></p></div>
             <div class="btn" id="clockOut" style="background: rgba(0,0,255,0.85)">Clock Out<p><img src="images/out.png"></p></div>
+            <img id="settings" src="images/settings.jpg">
+            <div id="alert"></div>
+            <div id="message"></div>
+            <div id="online">.</div>
         </div>
-        <img id="settings" src="images/settings.jpg">
-        <div id="alert"></div>
-        <div id="message"></div>
-        <div id="online">.</div>
     </body>
-    <script>require('./timeclock_renderer.js')</script>
     <script type="text/javascript">
+        require('./timeclock_renderer.js');
+        
         var audio = new Audio('sounds/buttonclick.wav');
         $('.btn').click(() => audio.play());
     </script>
