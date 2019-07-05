@@ -73,7 +73,7 @@ module.exports = {
         let hash = crypto.createHash('sha256');
         hash.update(id + passcode);
 
-        let sql = `SELECT COUNT(*) AS valid FROM teammembers WHERE role = 'mentor' AND id = ? AND passcode = ?`;
+        let sql = `SELECT COUNT(*) AS valid FROM teammembers WHERE id = ? AND passcode = ?`;
         this.dbexec(sql, [id, hash.digest('hex')], (err, results) => {
             if (!err) {
                 callback(err, results[0].valid);
@@ -206,7 +206,7 @@ module.exports = {
             secure: config.email.secure
         });
 
-        let sql = `SELECT * FROM teammembers WHERE role = 'mentor' AND active AND LENGTH(IFNULL(email,'')) > 0;`;
+        let sql = `SELECT * FROM teammembers WHERE role = 'Mentor' AND active AND LENGTH(IFNULL(email,'')) > 0;`;
         this.dbexec(sql, [], (err, results) => {
             if (!err) {
                 let recipients = '';

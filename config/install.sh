@@ -83,7 +83,7 @@ printf "    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,\n" >> createdb.sh
 printf "    lastname VARCHAR(25) NOT NULL,\n" >> createdb.sh
 printf "    firstname VARCHAR(25) NOT NULL,\n" >> createdb.sh
 printf "    email VARCHAR(255) DEFAULT '',\n" >> createdb.sh
-printf "    role VARCHAR(10) DEFAULT 'student',\n" >> createdb.sh
+printf "    role VARCHAR(10) DEFAULT 'Student',\n" >> createdb.sh
 printf "    passcode VARCHAR(256) DEFAULT '',\n" >> createdb.sh
 printf "    active BOOLEAN DEFAULT TRUE,\n" >> createdb.sh
 printf "    deleted BOOLEAN DEFAULT FALSE,\n" >> createdb.sh
@@ -104,7 +104,7 @@ printf "    PRIMARY KEY (id)\n" >> createdb.sh
 printf ");\n" >> createdb.sh
 
 printf "INSERT INTO teammembers (firstname, lastname, role, passcode)\n" >> createdb.sh
-printf "VALUES ('Default', 'Mentor', 'mentor', SHA2('15555',256));\n" >> createdb.sh
+printf "VALUES ('Default', 'Mentor', 'Mentor', SHA2('15555',256));\n" >> createdb.sh
 
 # Make sure that NOBODY can access the server without a password
 printf "UPDATE mysql.user SET Password = PASSWORD('$dbrootpass') WHERE User = 'root';\n" >> createdb.sh

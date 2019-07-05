@@ -101,7 +101,8 @@ app.on('ready', () => {
       }, 20000);
 });
 
-ipc.on('displayPasscodeEntry', (evt) => {
+ipc.on('displayPasscodeEntry', (evt, target) => {
+    passcodeWindow.send('set-target', target);
     passcodeWindow.show();
 });
 

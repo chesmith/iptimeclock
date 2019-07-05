@@ -5,6 +5,13 @@ window.$ = window.jQuery = require('jquery');
 
 var teamMemberId;
 var passcode = '';
+let validPasscodeTarget;
+
+ipc.on('set-target', (evt, target) => {
+    //allows for configuration of other targets after a valid passcode entry
+    //assumes the value passed in to target is an IPC call channel (i.e. main.js will be listening for it)
+    validPasscodeTarget = target;
+});
 
 //currently, only hide/show the window - don't destroy and recreate each time
 $('#close').click( () => {
@@ -31,7 +38,7 @@ function keypress(id, digit) {
             if (!err) {
                 reset();
                 if (valid) {
-                    ipc.send('displaySettings');
+                    ipc.send(validPasscodeTarget);
                 }
                 else {
                     $('#container').addClass('shake');
