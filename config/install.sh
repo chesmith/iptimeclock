@@ -33,19 +33,22 @@ echo ""
 
 echo -e "\e[30;48;5;82m ##Display \e[0m"
 ## Display
-echo -e "\e[30;48;5;82m ### Rotate the LCD \e[0m"
-### Rotate the LCD
-printf "\nlcd_rotate=2" | sudo tee -a /boot/config.txt
-echo ""
 
 ### Auto-hide the taskbar
 #TODO: this file won't exist unless the user has accessed the GUI, anyway, so we can't do this here
 #sed -i 's/autohide=0/autohide=1/g' ~/.config/lxpanel/LXDE-pi/panels/panel
 #sed -i 's/heightwhenhidden=2/heightwhenhidden=0/g' ~/.config/lxpanel/LXDE-pi/panels/panel
 
+echo -e "\e[30;48;5;82m ### Rotate the LCD \e[0m"
+### Rotate the LCD
+printf "\nlcd_rotate=2" | sudo tee -a /boot/config.txt
+echo ""
+### Update permissions to allow LCD brightness adjustment
+sudo chmod o+w /sys/class/backlight/rpi_backlight/brightness
+
 echo -e "\e[30;48;5;82m ### Hide the mouse cusor \e[0m"
-### Hide the mouse cursor
-sudo sed -i 's/#xserver-command=X/xserver-command=X -core -nocursor/g' /etc/lightdm/lightdm.conf
+### Hide the mouse cursor & disable screen sleep
+sudo sed -i 's/#xserver-command=X/xserver-command=X -core -nocursor -s 0 -dpms/g' /etc/lightdm/lightdm.conf
 
 echo -e "\e[30;48;5;82m ## Node.js \e[0m"
 ## Node.js
@@ -58,6 +61,7 @@ echo -e "\e[30;48;5;82m ## Database \e[0m"
 echo -e "\e[30;48;5;82m ### Install MySQL \e[0m"
 ### Install MySQL
 sudo apt-get install -y mysql-server
+#MAY BE REQUIRED FOR DEBIAN BUSTER: sudo apt -y install mariadb-server mariadb-client
 
 echo -e "\e[30;48;5;82m ### Case Insensitivity \e[0m"
 ### Case Insensitivity
@@ -109,7 +113,7 @@ printf "DELETE FROM mysql.user WHERE User='';\n" >> createdb.sh
 # Disallow root login remotely
 printf "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');\n" >> createdb.sh
 # Ensure root requires password (remove the unix_socket plugin entry if there)
-printf "UPDATE mysql.user SET plugin=null WHERE user='root';\n" >> createdb.sh
+printf "UPDATE mysql.user SET plugin='' WHERE user='root';\n" >> createdb.sh
 # Drop the test database
 printf "DROP DATABASE IF EXISTS test;\n" >> createdb.sh
 # Make our changes take effect
@@ -163,6 +167,7 @@ sudo systemctl stop dhcpcd
 
 echo -e "\e[30;48;5;82m ## Additional OS configuration \e[0m"
 ## Additional OS configuration
+printf "sudo chmod o+w /sys/class/backlight/rpi_backlight/brightness" >> ~/.bashrc
 printf "alias dir='ls -alF'" >> ~/.bash_aliases
 sudo raspi-config nonint do_ssh 0
 sudo raspi-config nonint do_vnc 0

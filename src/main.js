@@ -147,7 +147,7 @@ autoUpdater.on('error', (err) => {
 });
 
 autoUpdater.on('download-progress', (progressObj) => {
-    sendStatusToWindow(`Downloaded ${progressObj.percent}%`);
+    sendStatusToWindow(`Downloaded ${progressObj.percent.toFixed(0)}%`);
 });
 
 autoUpdater.on('update-downloaded', (info) => {

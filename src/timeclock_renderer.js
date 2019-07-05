@@ -19,7 +19,6 @@ $('#online').text(`v${electron.remote.app.getVersion()}`);
 setInterval(() => {
     util.checkOnlineStatus((err, online) => {
         let color;
-        // console.table([[`err`,`${err}`], [`online status`,`${online}`]]);
         switch (online) {
             case 0: color = 'white'; break;
             case 2: case 3: color = 'orange'; break;
@@ -172,10 +171,11 @@ ipc.on('clear-alert', (evt) => {
     clearAlert();
 });
 
+//after 5 minutes of inactivity, zoom in on the clock, hide the rest of the stuff, and dim the screen - wake up on a tap
 function screensaver(active) {
     if (active) {
         $("#container").fadeOut();
-        $("#clock").animate({ 'font-size': '155px', 'top': '130px' }, 500);
+        $("#clock").animate({ 'font-size': '155px', 'top': '140px' }, 500);
         $("#clock").css({ 'justify-content': 'center' });
         $("#container").css('pointer-events', 'none');
         brightness.set(initialBrightness * 0.25);
