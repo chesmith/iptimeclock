@@ -13,7 +13,7 @@ let teamMemberList = document.getElementById('teamMember');
 let messageTimer;
 let selectedMemberId;
 let selectedOption;
-let mentorId;
+let adminId;
 
 ipc.on('loadTeam', (evt, err, teamMembers) => {
     populateTeamMemberList(err, teamMembers);
@@ -39,13 +39,14 @@ function populateTeamMemberList(err, teamMembers) {
                 option.setAttribute('data-active', member.active);
                 option.setAttribute('data-punchtype', member.punchtype);
                 option.setAttribute('data-punchtime', member.punchtime);
-                if (member.role == 'mentor' && member.passcode.length > 0) {
+                if (member.role != 'Student' && member.passcode.length > 0) {
                     option.setAttribute('data-passcode', '********');
                 }
                 else {
                     option.setAttribute('data-passcode', '');
                 }
-                option.text = `  ${(member.role == 'mentor' ? 'Mentor: ' : '')}${member.lastname}, ${member.firstname}`;
+                let role = (member.role != 'Student' ? `${member.role}: ` : '');
+                option.text = `  ${role}${member.lastname}, ${member.firstname}`;
                 if (!member.active) {
                     option.text += ' (inactive)';
                 }
@@ -65,11 +66,12 @@ function populateDetails() {
     $('#lastname').val(selectedOption.getAttribute('data-lastname'));
     $('#email').val(selectedOption.getAttribute('data-email'));
     $('#active').prop('checked', (selectedOption.getAttribute('data-active') == '1'));
-    $('#student').prop('checked', (selectedOption.getAttribute('data-role') == 'student'));
-    $('#mentor').prop('checked', (selectedOption.getAttribute('data-role') == 'mentor'));
+    $('#student').prop('checked', (selectedOption.getAttribute('data-role') == 'Student'));
+    $('#lead').prop('checked', (selectedOption.getAttribute('data-role') == 'Lead'));
+    $('#mentor').prop('checked', (selectedOption.getAttribute('data-role') == 'Mentor'));
     $('#passcode').val(selectedOption.getAttribute('data-passcode'));
 
-    enablePasscode(selectedOption.getAttribute('data-role') == 'mentor');
+    enablePasscode(selectedOption.getAttribute('data-role') != 'Student');
 
     let punchtype = selectedOption.getAttribute('data-punchtype');
     let lastPunchMessage = '';
@@ -129,7 +131,7 @@ $("input:radio[name='role']").change(() => {
     let role = $("input:radio[name ='role']:checked").val();
     if (typeof role == 'undefined') role = '';
 
-    enablePasscode(role == 'mentor');
+    enablePasscode(role != 'Student');
 });
 
 function enablePasscode(enable) {
@@ -172,7 +174,9 @@ function validateFields(callback) {
     let role = $("input:radio[name ='role']:checked").val();
     if (typeof role == 'undefined') role = '';
 
-    if ($('#firstname').val().length > 0 && $('#lastname').val().length > 0 && role.length > 0 && ($('#passcode').val().length == 0 || $('#passcode').val().length == 4)) {
+    if ($('#firstname').val().length > 0 && $('#lastname').val().length > 0 && role.length > 0
+        && ($('#passcode').val().length == 0 || $('#passcode').val().length == 4 || $('#passcode').val() == '********'))
+    {
         callback();
     }
     else {
@@ -222,9 +226,9 @@ function displayMessage(text) {
 
 function addTeamMember(callback) {
     let role = $("input:radio[name ='role']:checked").val();
-    if (typeof role == 'undefined') role = 'student';
+    if (typeof role == 'undefined') role = 'Student';
 
-    team.add($('#firstname').val(), $('#lastname').val(), $('#email').val(), $('#passcode').val(), role, mentorId, (err, id) => {
+    team.add($('#firstname').val(), $('#lastname').val(), $('#email').val(), $('#passcode').val(), role, adminId, (err, id) => {
         if (!err) {
             selectedMemberId = id;
             $('#loading').show();
@@ -236,9 +240,9 @@ function addTeamMember(callback) {
 
 function updateTeamMember(callback) {
     let role = $("input:radio[name ='role']:checked").val();
-    if (typeof role == 'undefined') role = 'student';
+    if (typeof role == 'undefined') role = 'Student';
 
-    team.update(selectedMemberId, $('#firstname').val(), $('#lastname').val(), $('#email').val(), $('#passcode').val(), role, $('#active').prop('checked'), mentorId, (err) => {
+    team.update(selectedMemberId, $('#firstname').val(), $('#lastname').val(), $('#email').val(), $('#passcode').val(), role, $('#active').prop('checked'), adminId, (err) => {
         if (!err) {
             if (!$('#active').prop('checked') && !$('#showInactive').prop('checked')) {
                 //if currently selected member has been deactivated and we're not showing active, reset everything and remove that team member
@@ -255,7 +259,7 @@ function updateTeamMember(callback) {
                 selectedOption.setAttribute('data-passcode', ($('#passcode').val().length > 0 ? '********' : ''));
                 selectedOption.setAttribute('data-role', role);
                 selectedOption.setAttribute('data-active', ($('#active').prop('checked') ? '1' : '0'));
-                selectedOption.text = ` ${(role == 'mentor' ? 'Mentor: ' : '')}${$('#lastname').val()}, ${$('#firstname').val()}`;
+                selectedOption.text = ` ${(role != 'Student' ? `${role}: ` : '')}${$('#lastname').val()}, ${$('#firstname').val()}`;
                 if (!$('#active').prop('checked')) {
                     selectedOption.text += ' (inactive)';
                 }
@@ -329,7 +333,7 @@ $('#transmitReport').click(() => {
     timeclock.generateDetailReport(fromdate, todate, (err, reportfile) => {
         if (!err) {
             timeclock.generateSummaryReport(fromdate, todate, (err, summary) => {
-                timeclock.sendReport(fromdate, todate, reportfile, summary, mentorId, (message) => {
+                timeclock.sendReport(fromdate, todate, reportfile, summary, adminId, (message) => {
                     displayMessage(message);
                 });
             });
@@ -355,5 +359,5 @@ $('#displayReport').click(() => {
 
 //leveraged by main view to set the ID of the member using settings (presumably a mentor)
 ipc.on('set-id', (evt, id) => {
-    mentorId = id;
+    adminId = id;
 });

@@ -27,5 +27,5 @@ You're recommended to use the install bash script in the [config](config) folder
 Should you want to manually perform any of the steps, see the [Installation Instructions](INSTALLATION.md).
 
 ## Long Term Maintenance
-Whether performing manual installation and setup, or accessing the RPi for long-term maintenance and application modifications, please review the [Build and Deploy Workflow](RPIBUILD.md) documentation, notably the [Useful Tools](RPIBUILD.md#useful-tools) section.
+Whether performing manual installation and setup, or accessing the RPi for long-term maintenance and application modifications, please review the [Build and Deploy Workflow](BUILD.md) documentation, notably the [Useful Tools](BUILD.md#useful-tools) section.
 

@@ -38,10 +38,10 @@ ipc.on('displayClock', (evt, currentHour, currentMinute, ampm, blink) => {
         $('#colon').css('color', 'white');
 });
 
-//show the settings icon/button only for mentors
+//show the settings icon/button only for mentors & leads
 $('#teamMember').change(() => {
     let role = teamMemberList.options[teamMemberList.selectedIndex].getAttribute('data-role');
-    showSettings(role == 'mentor');
+    showSettings(role == 'Mentor' || role == 'Lead');
 
     //send the team member ID to the passcode entry, so we can uniquely check passcode against the member record
     ipc.send('set-id', teamMemberList.value);
@@ -141,7 +141,7 @@ ipc.on('loadTeam', (evt, err, teamMembers) => {
                 option.setAttribute('data-role', member.role);
                 option.setAttribute('data-punchtype', member.punchtype);
                 option.setAttribute('data-punchtime', member.punchtime);
-                option.text = ` ${(member.role == 'mentor' ? 'Mentor: ' : '')}${member.lastname}, ${member.firstname}`;
+                option.text = ` ${(member.role == 'Mentor' ? `${member.role}: ` : '')}${member.lastname}, ${member.firstname}`;
                 if (member.punchtype == 1) {
                     let punchtime = new Date(Date.parse(member.punchtime));
                     option.text += ` (in since ${util.formatTime(punchtime)})`;
@@ -153,12 +153,12 @@ ipc.on('loadTeam', (evt, err, teamMembers) => {
     }
 });
 
-//show the passcode window - only allow mentors to access
+//show the passcode window - only allow mentors and leads to access
 $('#settings').click(() => {
     if (teamMemberList.selectedIndex > -1) {
         let role = teamMemberList.options[teamMemberList.selectedIndex].getAttribute('data-role');
-        if (role == 'mentor') {
-            ipc.send('displayPasscodeEntry');
+        if (role != 'Student') {
+            ipc.send('displayPasscodeEntry', 'displaySettings');
         }
     }
 });

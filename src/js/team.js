@@ -9,7 +9,7 @@ module.exports = {
                     LEFT JOIN punches AS p2
                     ON p2.id = p1.maxid
                     WHERE NOT m.deleted
-                    ORDER BY if(role='student',1,2), lastname`;
+                    ORDER BY if(role!='Mentor',1,2), lastname`;
         util.dbexec(sql, [], (err, results) => {
             callback(err, results);
         });

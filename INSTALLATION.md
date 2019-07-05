@@ -94,7 +94,7 @@ CREATE TABLE teammembers (
     lastname VARCHAR(25) NOT NULL,
     firstname VARCHAR(25) NOT NULL,
     email VARCHAR(255) DEFAULT '',
-    role VARCHAR(10) DEFAULT 'student',
+    role VARCHAR(10) DEFAULT 'Student',
     passcode VARCHAR(256) DEFAULT '',
     active BOOLEAN DEFAULT TRUE,
     deleted BOOLEAN DEFAULT FALSE,
@@ -115,7 +115,7 @@ create table punches (
 ### Create Default Mentor
 ```sql
 INSERT INTO teammembers (firstname, lastname, role, passcode)
-VALUES ('Default', 'Mentor', 'mentor', SHA2('5555','256'));
+VALUES ('Default', 'Mentor', 'Mentor', SHA2('15555','256'));
 ```
 
 Once additional mentors have been added, _**deactivate the default mentor entry**_.
@@ -134,7 +134,7 @@ Answer 'y' to all prompts:
 5. Reload privilege tables
 
 ## App Installation
-The following instructions walk you through installation using the latest release from the repo.  Alternatively, you can build the app on the RPi - see [Build and Deployment Workflow](RPIBUILD.md).
+The following instructions walk you through installation using the latest release from the repo.  Alternatively, you can build the app on the RPi - see [Build and Deployment Workflow](BUILD.md).
 
 ### Application executable
 1. Download the latest .AppImage file from [releases](releases)
