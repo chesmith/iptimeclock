@@ -17,22 +17,26 @@ module.exports = {
 
     add: function (firstname, lastname, email, passcode, role, created_by, callback) {
         if (passcode.startsWith('*')) {
-            //technically not possible
+            //technically not possible, but if somehow we receive this "user has a passcode and it's not being updated" indicator, be sure we don't write the "*" placeholder to the db
             let sql = 'INSERT INTO teammembers (firstname, lastname, email, role, created_by) VALUES (?, ?, ?, ?, ?)';
-            util.dbexec(sql, [firstname, lastname, email, role, created_by], (err, results) => {
-                callback(err, results);
-            });
-        }
-        else if (passcode.length == 0) {
-            let sql = 'INSERT INTO teammembers (firstname, lastname, email, passcode, role, created_by) VALUES (?, ?, ?, ?, ?, ?)';
-            util.dbexec(sql, [firstname, lastname, email, passcode, role, created_by], (err, results) => {
-                callback(err, results);
+            util.dbexec(sql, [firstname, lastname, email, role, created_by], (err, id) => {
+                callback(err, id);
             });
         }
         else {
-            let sql = 'INSERT INTO teammembers (firstname, lastname, email, passcode, role, created_by) VALUES (?, ?, ?, SHA2(?,256), ?, ?)';
-            util.dbexec(sql, [firstname, lastname, email, id + passcode, role, created_by], (err, results) => {
-                callback(err, results);
+            let sql = 'INSERT INTO teammembers (firstname, lastname, email, role, created_by) VALUES (?, ?, ?, ?, ?)';
+            util.dbexec(sql, [firstname, lastname, email, role, created_by], (err, id) => {
+                if (!err) {
+                    let pass = (passcode.length == 0 ? '' : util.getHash(id + passcode));
+                    if (pass.length > 0) {
+                        sql = 'UPDATE teammembers SET passcode = ? WHERE id = ?';
+                        util.dbexec(sql, [pass, id], (err) => callback(err, id));
+                    }
+                    else
+                        callback(err, id);
+                }
+                else
+                    callback(err, id);
             });
         }
     },
@@ -44,15 +48,10 @@ module.exports = {
                 callback(err);
             });
         }
-        else if (passcode.length == 0) {
-            let sql = 'UPDATE teammembers SET firstname = ?, lastname = ?, email = ?, passcode = ?, role = ?, active = ?, updated_by = ? WHERE id = ?';
-            util.dbexec(sql, [firstname, lastname, email, passcode, role, active, updated_by, id], (err, results) => {
-                callback(err);
-            });
-        }
         else {
-            let sql = 'UPDATE teammembers SET firstname = ?, lastname = ?, email = ?, passcode = SHA2(?,256), role = ?, active = ?, updated_by = ? WHERE id = ?';
-            util.dbexec(sql, [firstname, lastname, email, id + passcode, role, active, updated_by, id], (err, results) => {
+            let pass = (passcode.length == 0 ? '' : util.getHash(id + passcode));
+            let sql = 'UPDATE teammembers SET firstname = ?, lastname = ?, email = ?, passcode = ?, role = ?, active = ?, updated_by = ? WHERE id = ?';
+            util.dbexec(sql, [firstname, lastname, email, pass, role, active, updated_by, id], (err, results) => {
                 callback(err);
             });
         }

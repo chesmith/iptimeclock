@@ -55,7 +55,7 @@ module.exports = {
                         console.warn(err);
                     }
                     else if (!err && insert) {
-                        con.query(`SELECT LAST_INSERT_ID() as id`, (err, results) => {
+                        con.query('SELECT LAST_INSERT_ID() as id', (err, results) => {
                             con.end();
                             callback(err, results[0].id);
                         });
@@ -69,14 +69,18 @@ module.exports = {
         });
     },
 
-    validatePasscode: function (id, passcode, callback) {
+    getHash: function(value) {
         let hash = crypto.createHash('sha256');
-        hash.update(id + passcode);
+        hash.update(value);
+        return hash.digest('hex');
+    },
 
-        let sql = `SELECT COUNT(*) AS valid FROM teammembers WHERE id = ? AND passcode = ?`;
-        this.dbexec(sql, [id, hash.digest('hex')], (err, results) => {
+    validatePasscode: function (id, passcode, callback) {
+        let sql = 'SELECT passcode FROM teammembers WHERE id = ?';
+        this.dbexec(sql, [id], (err, results) => {
             if (!err) {
-                callback(err, results[0].valid);
+                let valid = (results.length > 0 && (results[0].passcode == this.getHash(id + passcode)));
+                callback(err, valid);
             }
             else {
                 console.warn(`unable to validate passcode: ${err}`);
