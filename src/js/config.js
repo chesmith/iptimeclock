@@ -6,19 +6,19 @@ var electron = require('electron').remote;
 if(typeof electron == 'undefined') { electron = require('electron'); }
 
 const keyPath = path.join(electron.app.getPath('userData'), 'key.txt');
-config.log(`key path (1): ${keyPath}`);
+console.log(`key path (1): ${keyPath}`);
 if(!fs.existsSync(keyPath)) {
     //if file doesn't exist in the userData directory, assume dev mode
     keyPath = path.join(electron.app.getAppPath(), 'src/config/key.txt');
-    config.log(`key  path (2): ${keyPath}`);
+    console.log(`key  path (2): ${keyPath}`);
 }
 
 var configPath = path.join(electron.app.getPath('userData'), 'config.json');
-config.log(`config path (1): ${configPath}`);
+console.log(`config path (1): ${configPath}`);
 if(!fs.existsSync(configPath)) {
     //if file doesn't exist in the userData directory, assume dev mode
     configPath = path.join(electron.app.getAppPath(), 'config/config.json');
-    config.log(`config path (2): ${configPath}`);
+    console.log(`config path (2): ${configPath}`);
 }
 
 var data = JSON.parse(fs.readFileSync(configPath));
