@@ -178,7 +178,7 @@ function screensaver(active) {
         $("#clock").animate({ 'font-size': '155px', 'top': '140px' }, 500);
         $("#clock").css({ 'justify-content': 'center' });
         $("#container").css('pointer-events', 'none');
-        brightness.set(initialBrightness * 0.25);
+        brightness.set(initialBrightness * 0.5);
     }
     else {
         brightness.set(initialBrightness);

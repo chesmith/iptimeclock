@@ -14,7 +14,7 @@
         "from": "b57f73fa9848b0b54c97b701e452eb11d140f0dd4e327826cafe4dd8d8b6187367c31efe07e85b3f654ecbfe1acad28b"
     },
 
-    "selectedWifi": "1190423ffd5ffda09845829d0823863cdd27daec593fafa83ad16c54760e345c",
+    "selectedWifi": "3bc1506180a2de7d12f6518b217a3cd94c6119625eb051a129325c1d97ea86d3",
 
     "knownWifi": [
         {
@@ -35,6 +35,13 @@
             "SSID": "1190423ffd5ffda09845829d0823863cdd27daec593fafa83ad16c54760e345c",
             "user": "",
             "pass": "c3f5513ca768b37ee65745609df799cdd1d790475cfb1c464db66f060c3900ef514ebce33f719ff9f33d6ea6d84513d3",
+            "portalUrl": "",
+            "type": "wpa2"
+        },
+        {
+            "SSID": "3bc1506180a2de7d12f6518b217a3cd94c6119625eb051a129325c1d97ea86d3",
+            "user": "",
+            "pass": "98c8a304fa117dea2e7cb5e66e1e37e262e13eac469bbe47e9ab509b3f78e607",
             "portalUrl": "",
             "type": "wpa2"
         }
