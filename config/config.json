@@ -14,6 +14,8 @@
         "from": "b57f73fa9848b0b54c97b701e452eb11d140f0dd4e327826cafe4dd8d8b6187367c31efe07e85b3f654ecbfe1acad28b"
     },
 
+    "autoClockOutTime": "0 21 * * *",
+
     "selectedWifi": "3bc1506180a2de7d12f6518b217a3cd94c6119625eb051a129325c1d97ea86d3",
 
     "knownWifi": [

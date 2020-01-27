@@ -286,6 +286,11 @@ $('#clockOutAll').click(() => {
     });
 });
 
+$('#overrideAutoClockOut').click(() => {
+    displayMessage('Disabled auto clock out for today only');
+    ipc.send('overrideAutoClockOut');
+});
+
 $('input[name=timeframe]').change(() => {
     //clear the fields first - some issue prevents the control from updating properly without this
     $('#datetimepicker1').datetimepicker('date', null);

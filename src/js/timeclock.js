@@ -29,10 +29,11 @@ module.exports = {
             if (!err) {
                 teamMembers.forEach((member) => {
                     if (member.active && member.punchtype == 1) {
+                        member.punchtype = 0;
                         this.clockOut(member.id);
                     }
                 });
-                if (callback) callback();
+                if (callback) callback(teamMembers);
             }
         });
     },
