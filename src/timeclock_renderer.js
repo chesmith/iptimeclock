@@ -3,6 +3,8 @@ const ipc = electron.ipcRenderer;
 const timeclock = require('./js/timeclock.js');
 const util = require('./js/util.js');
 const brightness = require ('brightness');
+const config = require('./js/config.js');
+const schedule = require('node-schedule');
 window.$ = window.jQuery = require('jquery');
 
 let teamMemberList = document.getElementById('teamMember');
@@ -10,8 +12,10 @@ let teamMemberList = document.getElementById('teamMember');
 let timerMessage;
 let timerAlert;
 
-let initialBrightness;
+let initialBrightness = 1.0;
 brightness.get().then(level => { initialBrightness = level; });
+
+let autoClockOutEnable = true;
 
 $('#online').text(`v${electron.remote.app.getVersion()}`);
 
@@ -128,27 +132,32 @@ $('#clockOut').click(() => {
     });
 });
 
+
+function loadTeamMemberList(teamMembers) {
+    teamMemberList.options.length = 0;
+    teamMembers.forEach((member) => {
+        if (member.active) {
+            option = document.createElement('option');
+            option.value = member.id;
+            option.setAttribute('data-firstname', member.firstname);
+            option.setAttribute('data-lastname', member.lastname);
+            option.setAttribute('data-role', member.role);
+            option.setAttribute('data-punchtype', member.punchtype);
+            option.setAttribute('data-punchtime', member.punchtime);
+            option.text = ` ${(member.role == 'Mentor' ? `${member.role}: ` : '')}${member.lastname}, ${member.firstname}`;
+            if (member.punchtype == 1) {
+                let punchtime = new Date(Date.parse(member.punchtime));
+                option.text += ` (in since ${util.formatTime(punchtime)})`;
+            }
+            teamMemberList.add(option);
+        }
+    });
+}
+
 //reload the team - currently, signal received from main.js on initial launch or when another window asks to reload
 ipc.on('loadTeam', (evt, err, teamMembers) => {
     if (!err) {
-        teamMemberList.options.length = 0;
-        teamMembers.forEach((member) => {
-            if (member.active) {
-                option = document.createElement('option');
-                option.value = member.id;
-                option.setAttribute('data-firstname', member.firstname);
-                option.setAttribute('data-lastname', member.lastname);
-                option.setAttribute('data-role', member.role);
-                option.setAttribute('data-punchtype', member.punchtype);
-                option.setAttribute('data-punchtime', member.punchtime);
-                option.text = ` ${(member.role == 'Mentor' ? `${member.role}: ` : '')}${member.lastname}, ${member.firstname}`;
-                if (member.punchtype == 1) {
-                    let punchtime = new Date(Date.parse(member.punchtime));
-                    option.text += ` (in since ${util.formatTime(punchtime)})`;
-                }
-                teamMemberList.add(option);
-            }
-        });
+        loadTeamMemberList(teamMembers);
         showSettings(false);
     }
 });
@@ -210,5 +219,27 @@ function idleSetup() {
 function onIdle() {
     screensaver(true);
 }
+
+ipc.on('overrideAutoClockOut', (evt) => {
+    autoClockOutEnable = false;
+});
+
+var j = schedule.scheduleJob(config.autoClockOutTime, function() {
+    //For cron patterns (used for autoClockOutTime): https://crontab.guru/
+
+    if (autoClockOutEnable) {
+        timeclock.clockOutAll((teamMembers) => {
+            //TODO: would love to just send a reloadTeam message, but for some reason the db update hasn't committed by the time we get here or something, so depend on clockOutAll to have updated punchtype and leverage the in-memory collection 
+            // ipc.send('reloadTeam');
+            loadTeamMemberList(teamMembers);
+            displayInfo('Automatic clock out');
+        });
+    }
+    else {
+        //override should only last for that day
+        displayInfo('Auto clock out disabled today');
+        autoClockOutEnable = true;
+    }
+});
 
 idleSetup();

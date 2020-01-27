@@ -27,12 +27,14 @@
         <div class="tab-content">
             <div class="tab-pane fade show active" id="team" role="tabpanel" style="width:100%">
                 <div id="teamMemberList">
-                    <select id="teamMember" size="13"></select>
+                    <select id="teamMember" size="12"></select>
                     <br/>
                     <div style="display:flex; justify-content: space-between">
                         <div><input type="checkbox" id="showInactive" class="css-checkbox"><label for="showInactive" class="css-label">Show inactive team members</label></div>
                     </div>
-               </div>
+                    <span id="clockOutAll" class="button" style="float: left; margin-right: 15px">Clock Out All</span>
+                    <span id="overrideAutoClockOut" class="button" style="float:left;">Override Auto-ClockOut Today</span>
+                </div>
                 <div id="details">
                     <table style="width:100%">
                         <tr>
@@ -105,7 +107,6 @@
                         </tr>
                         <tr>
                             <td colspan="3">
-                                <div id="clockOutAll" class="button" style="float: left">Clock Out All</div>
                                 <div id="lastPunch" style="margin-left: 10px; text-align:right"></div>
                             </td>
                         </tr>

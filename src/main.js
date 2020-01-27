@@ -117,6 +117,10 @@ ipc.on('reloadTeam', (evt) => {
     });
 });
 
+ipc.on('overrideAutoClockOut', (evt) => {
+    mainWindow.webContents.send('overrideAutoClockOut');
+});
+
 ipc.on('set-id', (evt, id) => {
     passcodeWindow.webContents.send('set-id', id);
     settingsWindow.webContents.send('set-id', id);
