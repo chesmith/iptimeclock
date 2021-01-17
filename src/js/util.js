@@ -221,7 +221,9 @@ module.exports = {
                     }
                     recipients += mentor.email;
 
-                    if (mentor.id == reportOptions.triggeredBy)
+                    if (reportOptions.triggeredBy == 'system')
+                        triggerName = 'automated report';
+                    else if (mentor.id == reportOptions.triggeredBy)
                         triggerName = `${mentor.firstname} ${mentor.lastname}`;
                 });
                 if (recipients.length > 0) {

@@ -57,6 +57,8 @@ config.selectedWifi = decrypt(data.selectedWifi);
 
 config.autoClockOutTime = data.autoClockOutTime;
 
+config.nightlyReportTime = data.nightlyReportTime;
+
 module.exports = config;
 
 function encrypt(text) {
