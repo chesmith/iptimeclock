@@ -85,12 +85,12 @@ function populateDetails() {
     $('#lastPunch').html(lastPunchMessage);
 }
 
-$('#close').click(() => {
+$('#close').on('click', () => {
     ipc.send('reloadTeam');
     electron.remote.getCurrentWindow().hide();
 });
 
-$('#teamMember').change(() => {
+$('#teamMember').on('change', () => {
     if (teamMemberList.selectedIndex > -1) {
         selectedMemberId = teamMemberList.value;
         selectedOption = teamMemberList[teamMemberList.selectedIndex];
@@ -104,7 +104,7 @@ $('#teamMember').change(() => {
     populateDetails();
 });
 
-$('#showInactive').change(() => {
+$('#showInactive').on('change', () => {
     if (selectedMemberId > -1) {
         let selectedMemberIsInactive = (selectedOption.getAttribute('data-active') == 0);
         let showInactive = $('#showInactive').prop('checked');
@@ -116,18 +116,18 @@ $('#showInactive').change(() => {
     team.load(populateTeamMemberList);
 });
 
-$('#addNew').click(() => {
+$('#addNew').on('click', () => {
     teamMemberList.selectedIndex = -1;
     selectedMemberId = -1;
     selectedOption = null;
     clearFields();
 });
 
-$('#passcode').click(() => {
+$('#passcode').on('click', () => {
     $('#passcode').select();
 });
 
-$("input:radio[name='role']").change(() => {
+$("input:radio[name='role']").on('change', () => {
     let role = $("input:radio[name ='role']:checked").val();
     if (typeof role == 'undefined') role = '';
 
@@ -145,7 +145,7 @@ function enablePasscode(enable) {
     }
 }
 
-$('#save').click(() => {
+$('#save').on('click', () => {
     validateFields(() => {
         if (teamMemberList.selectedIndex > -1) {
             updateTeamMember((err) => {
@@ -184,7 +184,7 @@ function validateFields(callback) {
     }
 }
 
-$('#delete').click(() => {
+$('#delete').on('click', () => {
     let options = {
         type: 'question',
         buttons: ['Yes', 'No'],
@@ -193,8 +193,11 @@ $('#delete').click(() => {
         message: 'Are you sure you want to remove this team member?',
         detail: `They won't show in any views, but will still exist in the database`
     };
-    dialog.showMessageBox(null, options, (response) => {
-        if (response == 0) {
+    dialog.showMessageBox(
+        null, 
+        options
+    ).then(result => {
+        if (result.response === 0) {
             deleteTeamMember();
         }
     });
@@ -280,18 +283,18 @@ function deleteTeamMember() {
     });
 }
 
-$('#clockOutAll').click(() => {
+$('#clockOutAll').on('click', () => {
     timeclock.clockOutAll(() => {
         displayMessage('Clocked out everyone');
     });
 });
 
-$('#overrideAutoClockOut').click(() => {
+$('#overrideAutoClockOut').on('click', () => {
     displayMessage('Disabled auto clock out for today only');
     ipc.send('overrideAutoClockOut');
 });
 
-$('input[name=timeframe]').change(() => {
+$('input[name=timeframe]').on('change', () => {
     //clear the fields first - some issue prevents the control from updating properly without this
     $('#datetimepicker1').datetimepicker('date', null);
     $('#datetimepicker2').datetimepicker('date', null);
@@ -328,7 +331,7 @@ $('input[name=timeframe]').change(() => {
     $('#onscreenreport').html('');
 });
 
-$('#transmitReport').click(() => {
+$('#transmitReport').on('click', () => {
     var fromdate = $('#datetimepicker1').datetimepicker('date');
     var todate = $('#datetimepicker2').datetimepicker('date');
     if (fromdate == null || todate == null) {
@@ -349,7 +352,7 @@ $('#transmitReport').click(() => {
     });
 });
 
-$('#displayReport').click(() => {
+$('#displayReport').on('click', () => {
     var fromdate = $('#datetimepicker1').datetimepicker('viewDate');
     var todate = $('#datetimepicker2').datetimepicker('viewDate');
     timeclock.generateSummaryReport(fromdate, todate, (err, summary) => {

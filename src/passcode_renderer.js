@@ -14,11 +14,11 @@ ipc.on('set-target', (evt, target) => {
 });
 
 //currently, only hide/show the window - don't destroy and recreate each time
-$('#close').click( () => {
+$('#close').on('click', () => {
     electron.remote.getCurrentWindow().hide();
 });
 
-$('#backspace').click( () => {
+$('#backspace').on('click', () => {
     if (passcode.length > 0) {
         passcode = passcode.substring(0, passcode.length - 1);
         updateDisplay();
@@ -26,7 +26,7 @@ $('#backspace').click( () => {
 });
 
 //triggered on any numeric keypress, as those are the only ones prefixed with "key"
-$('[id^=key]').click( (event) => {
+$('[id^=key]').on('click', (event) => {
     keypress(teamMemberId, event.target.id.substring(3));
 });
 

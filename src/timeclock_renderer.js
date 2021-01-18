@@ -43,7 +43,7 @@ ipc.on('displayClock', (evt, currentHour, currentMinute, ampm, blink) => {
 });
 
 //show the settings icon/button only for mentors & leads
-$('#teamMember').change(() => {
+$('#teamMember').on('change', () => {
     let role = teamMemberList.options[teamMemberList.selectedIndex].getAttribute('data-role');
     showSettings(role == 'Mentor' || role == 'Lead');
 
@@ -81,7 +81,7 @@ function clearAlert() {
 }
 
 //clock in the team member, only if currently clocked out (alternate approach is to log a clock-in record regardless)
-$('#clockIn').click(() => {
+$('#clockIn').on('click', () => {
     let selectedIndex = teamMemberList.selectedIndex;
     if (selectedIndex == -1) {
         displayInfo('Please select a team member first');
@@ -108,7 +108,7 @@ $('#clockIn').click(() => {
 });
 
 //clock out the team member, only if currently clocked in (alternate approach is to log a clock-out record regardless)
-$('#clockOut').click(() => {
+$('#clockOut').on('click', () => {
     let selectedIndex = teamMemberList.selectedIndex;
     if (selectedIndex == -1) {
         displayInfo('Please select a team member first');
@@ -163,7 +163,7 @@ ipc.on('loadTeam', (evt, err, teamMembers) => {
 });
 
 //show the passcode window - only allow mentors and leads to access
-$('#settings').click(() => {
+$('#settings').on('click', () => {
     if (teamMemberList.selectedIndex > -1) {
         let role = teamMemberList.options[teamMemberList.selectedIndex].getAttribute('data-role');
         if (role != 'Student') {
