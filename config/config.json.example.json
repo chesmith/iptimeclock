@@ -1,0 +1,20 @@
+{
+    "db": {
+        "host": "127.0.0.1",
+        "user": "<encrypted user ID>",
+        "password": "<encrypted password>"
+    },
+
+    "email": {
+        "host": "<encrypted host>",
+        "port": 465,
+        "secure": true,
+        "user": "<encrypted user ID>",
+        "pass": "<encrypted password>",
+        "from": "<encrypted from address>"
+    },
+
+    "autoClockOutTime": "0 21 * * *",
+
+    "nightlyReportTime": "5 21 * * *"
+}

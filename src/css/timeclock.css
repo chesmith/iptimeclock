@@ -70,6 +70,7 @@ option {
     width: 530px;
     border: none;
     opacity: 0.95;
+    outline: none
 }
 
 #clockIn {

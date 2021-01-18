@@ -48,7 +48,7 @@ module.exports = {
         if (fromdate == null) _fromdate = moment('1/1/2000', 'M/D/YYYY');
         if (todate == null) _todate = moment().endOf('day');
 
-        let sql = `SELECT m.*, p.id as punchid, p.punchtype, p.created as punchtime
+        let sql = `SELECT m.id, m.lastname, m.firstname, p.id as punchid, p.punchtype, p.created as punchtime
                     FROM teammembers as m, punches as p
                     WHERE m.id = p.memberid AND m.active AND NOT m.deleted
                       AND p.created between ? and ?
@@ -75,13 +75,7 @@ module.exports = {
                 if (online == 0)
                     sendEmail();
                 else {
-                    displayMessage(`No internet connectivity.  Attempting to connect and retry every 3 seconds...`);
-                    util.connectWifi((retry, maxretries) => {
-                        if (typeof retry == 'undefined')
-                            sendEmail();
-                        else
-                            displayMessage(`Retry ${retry} of ${maxretries}...`);
-                    });
+                    displayMessage(`No internet connection`);
                 }
             }
             else
@@ -95,7 +89,7 @@ module.exports = {
             let to = moment(todate).format('M/D/YYYY');
             util.emailMentors(
                 {subject: `IP Timeclock Report: ${now}`,
-                    body: `<p>Report timeframe ${from} to ${to}</p>Summary:<br/>${summary}`,
+                    body: `<p>Report timeframe ${from} to ${to}</p><b>Summary</b><br/>${summary}`,
                     attachments: [{ filename: reportfile, path: `reports/${reportfile}` }],
                     triggeredBy: mentorId}, (err, message) => {
                 if (!err)
@@ -114,7 +108,7 @@ module.exports = {
         if (fromdate == null) _fromdate = moment('1/1/2000', 'M/D/YYYY');
         if (todate == null) _todate = moment().endOf('day');
 
-        let sql = `SELECT m.*, p.id as punchid, p.punchtype, p.created as punchtime
+        let sql = `SELECT m.id, m.lastname, m.firstname, p.id as punchid, p.punchtype, p.created as punchtime
                     FROM teammembers as m, punches as p
                     WHERE m.id = p.memberid AND m.active AND NOT m.deleted
                       AND p.created between ? and ?
@@ -148,13 +142,17 @@ module.exports = {
                         prevId = row.id;
                     });
 
-                    html = '<table>'; 
-                    let toggle = true;
+                    html = '<i>By Name</i><br/><table>';
                     data.forEach((d, id) => {
                         let totalhours = (d.total / 1000 / 60 / 60).toFixed(2);
-                        // toggle = !toggle;
-                        // let background = (toggle ? '#444' : '#666');
-                        // html += `<tr style='background: ${background}'><td style='padding-right: 10px'>${d.lastname}, ${d.firstname} [${id}]</td><td>${totalhours} hours</td>`;
+                        html += `<tr><td style='padding-right: 10px'>${d.lastname}, ${d.firstname}</td><td>${totalhours} hours</td>`;
+                    });
+                    html += '</table>';
+                    
+                    let sorted = new Map([...data.entries()].sort((a, b) => (a[1].total < b[1].total) || (a[1].total === b[1].total ? 0 : -1)));
+                    html += '<p></p><i>By Hours</i><br/><table>';
+                    sorted.forEach((d, id) => {
+                        let totalhours = (d.total / 1000 / 60 / 60).toFixed(2);
                         html += `<tr><td style='padding-right: 10px'>${d.lastname}, ${d.firstname}</td><td>${totalhours} hours</td>`;
                     });
                     html += '</table>';

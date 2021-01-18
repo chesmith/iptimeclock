@@ -243,10 +243,9 @@ var autoClockOut = schedule.scheduleJob(config.autoClockOutTime, function() {
 });
 
 var dailyReport = schedule.scheduleJob(config.nightlyReportTime, function() {
-    //TODO: set fromdate = 1/1/<current year> and todate = <today>
-    //TODO: add admin screen ability to enable/disable this feature
-    //TODO: add overall ability to indicate which mentors/users to receive the report (maybe as part of member setting screen)
-    let fromdate = moment('1/1/2021', 'M/D/YYYY');
+    //TODO: add overall ability to indicate which mentors/users to receive the report (maybe as part of member setting screen) - for now, have to ensure only those mentors have email addresses configured in the system
+    let currentYear = new Date().getFullYear();
+    let fromdate = moment('1/1/' + currentYear, 'M/D/YYYY');
     let todate = moment().endOf('day');
 
     timeclock.generateDetailReport(fromdate, todate, (err, reportfile) => {

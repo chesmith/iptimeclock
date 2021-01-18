@@ -159,12 +159,6 @@ if [ "$speaker" == "" ] || [ "$speaker" == "y" ] || [ "$speaker" != "Y" ]; then
     curl -sS https://get.pimoroni.com/speakerphat | bash
 fi
 
-echo -e "\e[30;48;5;82m ## WiFi \e[0m"
-## WiFi
-sudo apt-get install -y network-manager
-sudo systemctl disable dhcpcd
-sudo systemctl stop dhcpcd
-
 echo -e "\e[30;48;5;82m ## Additional OS configuration \e[0m"
 ## Additional OS configuration
 printf "sudo chmod o+w /sys/class/backlight/rpi_backlight/brightness" >> ~/.bashrc
@@ -174,5 +168,4 @@ sudo raspi-config nonint do_vnc 0
 sudo raspi-config nonint do_hostname iptimeclock
 
 echo ""
-echo -e "\e[30;48;5;82m*** Restart when you're ready.  After restart, you'll need to connect to wifi manually:\e[0m"
-echo -e "\e[30;48;5;82m*** e.g. nmcli dev wifi con \"ssid\" password \"p455w04d\"\e[0m"
+echo -e "\e[30;48;5;82m*** Restart when you're ready.\e[0m"

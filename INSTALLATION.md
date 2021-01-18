@@ -2,7 +2,7 @@
 
 The scripted install is recommended, but on the chance you need to perform some of the install manually, the following are effectively the steps involved and are in fact what are accomplished via the script.
 ___
-[Hardware](#hardware) | [Operating System](#operating-system) | [Display](#display) | [Node.js](#node.js) | [Database](#database) | [WiFi](#wifi) | [App Installation](#app-installation) | [Autostart](#autostart)
+[Hardware](#hardware) | [Operating System](#operating-system) | [Display](#display) | [Node.js](#node.js) | [Database](#database) | [App Installation](#app-installation) | [Autostart](#autostart)
 ___
 ## Hardware
 - [Raspberry Pi Model 3 B or B+](https://www.raspberrypi.org/products/)
@@ -155,7 +155,7 @@ The following instructions walk you through installation using the latest releas
 4. Create a file named 'key.txt' in this directory containing your decryption key (see below)
 
     #### config.json
-    Database credentials, email server details, and wifi connection details are stored in this file.  Most values are encrypted (see below).
+    Database credentials, email server details, and scheduled task details are stored in this file.  Most values are encrypted (see below).
 
     #### encrypt.js
     This script helps encrypt values that will be placed in config.json.  Read comments in the script file for usage instructions.
@@ -177,19 +177,6 @@ mkdir ~/.config/autostart
 printf "[Desktop Entry]\nType=Application\nName=iptimeclock autostart\nComment=Iron Plaid Timeclock\nNoDisplay=false\nExec=/home/pi/iptimeclock" > ~/.config/autostart/iptimeclock.desktop
 ```
 
-## WiFi
-The app uses [RPi NetworkManager CLI](http://www.intellamech.com/RaspberryPi-projects/rpi_nmcli.html) to attempt to automatically connect to wifi for certain features.
-
-```bash
-sudo apt-get update
-sudo apt-get install -y network-manager
-sudo systemctl disable dhcpcd
-sudo systemctl stop dhcpcd
-sudo reboot
-```
-
-_Note: This will disable the regular wifi controls, so if you need to use the command line to connect or disconnect wifi._
-
 ### Additional OS configuration
 ```bash
 printf "sudo chmod o+w /sys/class/backlight/rpi_backlight/brightness" >> ~/.bashrc
@@ -198,8 +185,3 @@ sudo raspi-config nonint do_ssh 0
 sudo raspi-config nonint do_vnc 0
 sudo raspi-config nonint do_hostname iptimeclock
 ```
-
-After restart, you'll need to connect to wifi manually:
-```bash
-nmcli dev wifi con "ssid" password "p455w04d"
-````

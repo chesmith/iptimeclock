@@ -40,21 +40,6 @@ config.email = {
     from: decrypt(data.email.from)
 };
 
-config.wifi = {};
-for (var i = 0; i < data.knownWifi.length; i++) {
-    var wifi = {
-        SSID: decrypt(data.knownWifi[i].SSID),
-        user: decrypt(data.knownWifi[i].user),
-        pass: decrypt(data.knownWifi[i].pass),
-        portalUrl: decrypt(data.knownWifi[i].portalUrl),
-        type: data.knownWifi[i].type
-    };
-
-    config.wifi[wifi.SSID] = wifi;
-}
-
-config.selectedWifi = decrypt(data.selectedWifi);
-
 config.autoClockOutTime = data.autoClockOutTime;
 
 config.nightlyReportTime = data.nightlyReportTime;
