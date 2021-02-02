@@ -24,6 +24,8 @@ You're recommended to use the install bash script in the [config](config) folder
 /boot/install.sh
 ```
 
+(Ensure the install.sh file is used as-is from GitHub or ensure it uses LF only, not CRLF which is common if modified and saved in Windows.)
+
 Should you want to manually perform any of the steps, see the [Installation Instructions](INSTALLATION.md).
 
 ## Long Term Maintenance

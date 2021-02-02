@@ -36,7 +36,10 @@ app.on('ready', () => {
         kiosk: kioskMode,
         show: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            // worldSafeExecuteJavaScript: true,
+            // contextIsolation: true,
+            enableRemoteModule: true
         }
     });
 
@@ -71,7 +74,10 @@ app.on('ready', () => {
         modal: true,
         show: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            // worldSafeExecuteJavaScript: true,
+            // contextIsolation: true,
+            enableRemoteModule: true
         }
     });
     passcodeWindow.loadURL(`file://${__dirname}/passcode.html`);
@@ -84,7 +90,10 @@ app.on('ready', () => {
         modal: true,
         show: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            // worldSafeExecuteJavaScript: true,
+            // contextIsolation: true,
+            enableRemoteModule: true
         }
     });
     settingsWindow.loadURL(`file://${__dirname}/settings.html`);
