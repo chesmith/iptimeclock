@@ -29,6 +29,15 @@ body {
     cursor: pointer
 }
 
+.button {
+    border:2px solid white;
+    padding: 5px;
+    border-radius: 4px;
+    font-weight: 500;
+    background-color: black;
+    white-space: nowrap;
+}
+
 .btn:active {
     -webkit-transform: scale(0.95);
     transform: scale(0.95);
@@ -75,20 +84,27 @@ option {
 
 #clockIn {
     position: absolute;
-    top: 20;
-    right: 10;
+    top: 20px;
+    right: 10px;
 }
 
 #clockOut {
     position: absolute;
-    bottom: 20;
-    right: 10;
+    bottom: 20px;
+    right: 10px;
 }
 
 #settings {
     position: absolute;
-    left: -10;
-    bottom: -10;
+    left: -10px;
+    bottom: -10px;
+    opacity: 0;
+}
+
+#clockOutAll {
+    position: absolute;
+    left: 50px;
+    bottom: -10px;
     opacity: 0;
 }
 

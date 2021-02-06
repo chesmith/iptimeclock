@@ -53,6 +53,7 @@ $('#teamMember').on('change', () => {
 
 function showSettings(enable) {
     $('#settings').css('opacity', (enable ? '1' : '0'));
+    $("#clockOutAll").css('opacity', (enable ? '1' : '0'));
 }
 
 function displayInfo(text) {
@@ -132,7 +133,6 @@ $('#clockOut').on('click', () => {
     });
 });
 
-
 function loadTeamMemberList(teamMembers) {
     teamMemberList.options.length = 0;
     teamMembers.forEach((member) => {
@@ -167,13 +167,27 @@ $('#settings').on('click', () => {
     if (teamMemberList.selectedIndex > -1) {
         let role = teamMemberList.options[teamMemberList.selectedIndex].getAttribute('data-role');
         if (role != 'Student') {
-            ipc.send('displayPasscodeEntry', 'displaySettings');
+            ipc.send('displayPasscodeEntry_Settings', 'displaySettings');
+        }
+    }
+});
+
+//show the passcode window - only allow mentors and leads to access
+$('#clockOutAll').on('click', () => {
+    if (teamMemberList.selectedIndex > -1) {
+        let role = teamMemberList.options[teamMemberList.selectedIndex].getAttribute('data-role');
+        if (role != 'Student') {
+            ipc.send('displayPasscodeEntry_ClockOutAll', 'clockOutAll');
         }
     }
 });
 
 ipc.on('alert', (evt, text) => {
     displayAlert(text);
+});
+
+ipc.on('message', (evt, text) => {
+    displayInfo(text);
 });
 
 ipc.on('clear-alert', (evt) => {
@@ -255,7 +269,7 @@ var dailyReport = schedule.scheduleJob(config.nightlyReportTime, function() {
             });
         }
         else {
-            displayMessage(`Failed to generate report [${err}]`);
+            displayAlert(`Failed to generate report [${err}]`);
         }
     });
 });

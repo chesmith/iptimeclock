@@ -48,7 +48,7 @@ module.exports = {
         if (fromdate == null) _fromdate = moment('1/1/2000', 'M/D/YYYY');
         if (todate == null) _todate = moment().endOf('day');
 
-        let sql = `SELECT m.id, m.lastname, m.firstname, p.id as punchid, p.punchtype, p.created as punchtime
+        let sql = `SELECT m.id, m.lastname, m.firstname, m.role, p.id as punchid, p.punchtype, p.created as punchtime
                     FROM teammembers as m, punches as p
                     WHERE m.id = p.memberid AND m.active AND NOT m.deleted
                       AND p.created between ? and ?

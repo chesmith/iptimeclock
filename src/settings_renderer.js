@@ -294,6 +294,10 @@ $('#overrideAutoClockOut').on('click', () => {
     ipc.send('overrideAutoClockOut');
 });
 
+$('#exit').on('click', () => {
+    electron.remote.getCurrentWindow().getParentWindow().close();
+});
+
 $('input[name=timeframe]').on('change', () => {
     //clear the fields first - some issue prevents the control from updating properly without this
     $('#datetimepicker1').datetimepicker('date', null);

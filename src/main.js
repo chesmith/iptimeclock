@@ -3,6 +3,7 @@ const electron = require('electron');
 const clock = require('./js/clock.js');
 const team = require('./js/team.js');
 const util = require('./js/util.js');
+const timeclock = require('./js/timeclock.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -110,7 +111,7 @@ app.on('ready', () => {
       }, 20000);
 });
 
-ipc.on('displayPasscodeEntry', (evt, target) => {
+ipc.on('displayPasscodeEntry_Settings', (evt, target) => {
     passcodeWindow.send('set-target', target);
     passcodeWindow.show();
 });
@@ -118,6 +119,17 @@ ipc.on('displayPasscodeEntry', (evt, target) => {
 ipc.on('displaySettings', (evt) => {
     passcodeWindow.hide();
     settingsWindow.show();
+});
+
+ipc.on('displayPasscodeEntry_ClockOutAll', (evt, target) => {
+    passcodeWindow.send('set-target', target);
+    passcodeWindow.show();
+});
+
+ipc.on('clockOutAll', (evt) => {
+    timeclock.clockOutAll((teamMembers) => mainWindow.webContents.send('loadTeam', false, teamMembers) );
+    passcodeWindow.hide();
+    mainWindow.webContents.send('message', 'Clocked out everyone');
 });
 
 ipc.on('reloadTeam', (evt) => {
