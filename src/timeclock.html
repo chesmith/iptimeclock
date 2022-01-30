@@ -7,10 +7,11 @@
     <body>
         <div id="clock"><div id="hour"></div><div id="colon" style="color:black">:</div><div id="minute"></div></div>
         <div id="container">
-            <img src="images/ip.png" id="iplogo">
+            <div id="logo" style="position:absolute; top:160px; right:20px"><img src="images/logo.png" style="max-width: 180px"></div>
+            <img src="images/ip.png" id="ipbackground">
             <select id="teamMember" size="9"></select>
-            <div class="btn" id="clockIn" style="background: rgba(255,0,0,0.85);">Clock In<p><img src="images/in.png"></p></div>
-            <div class="btn" id="clockOut" style="background: rgba(0,0,255,0.85)">Clock Out<p><img src="images/out.png"></p></div>
+            <div class="btn" id="clockIn" style="background: rgba(0,0,255,0.85); display: none;">Clock In<p><img src="images/in.png"></p></div>
+            <div class="btn" id="clockOut" style="background: rgba(255,0,0,0.85); display: none;">Clock Out<p><img src="images/out.png"></p></div>
             <img id="settings" src="images/settings.jpg">
             <div><span id="clockOutAll" class="button" style="float: left; margin-right: 15px">Clock Out All</span></div>
             <div id="alert"></div>

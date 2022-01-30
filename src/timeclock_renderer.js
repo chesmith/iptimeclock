@@ -47,6 +47,17 @@ $('#teamMember').on('change', () => {
     let role = teamMemberList.options[teamMemberList.selectedIndex].getAttribute('data-role');
     showSettings(role == 'Mentor' || role == 'Lead');
 
+    $(logo).hide();
+    let lastPunchType = teamMemberList.options[teamMemberList.selectedIndex].getAttribute('data-punchtype');
+    if (lastPunchType == 'null' || lastPunchType == '0') {
+        $(clockIn).show();
+        $(clockOut).hide();
+    }
+    else {
+        $(clockOut).show();
+        $(clockIn).hide();
+    }
+
     //send the team member ID to the passcode entry, so we can uniquely check passcode against the member record
     ipc.send('set-id', teamMemberList.value);
 });
@@ -152,6 +163,10 @@ function loadTeamMemberList(teamMembers) {
             teamMemberList.add(option);
         }
     });
+
+    $(logo).show();
+    $(clockIn).hide();
+    $(clockOut).hide();
 }
 
 //reload the team - currently, signal received from main.js on initial launch or when another window asks to reload

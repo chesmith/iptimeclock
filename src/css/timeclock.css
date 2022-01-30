@@ -17,14 +17,14 @@ body {
 
 .btn {
     padding: 10px 10px;
-    padding-top: 25px;
+    padding-top: 80px;
     border: 0;
     font-size: 28px;
     font-weight: 800;
     color: #fff;
     border-radius: 4px;
     width: 170px;
-    height: 155px;
+    height: 205px;
     text-align: center;
     cursor: pointer
 }
@@ -64,7 +64,7 @@ option {
     text-align: center;
 }
 
-#iplogo {
+#ipbackground {
     position: absolute;
     top: 175px;
     left: 20px;
@@ -84,13 +84,13 @@ option {
 
 #clockIn {
     position: absolute;
-    top: 20px;
+    top: 115px;
     right: 10px;
 }
 
 #clockOut {
     position: absolute;
-    bottom: 20px;
+    top: 115px;
     right: 10px;
 }
 

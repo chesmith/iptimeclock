@@ -39,7 +39,7 @@ app.on('ready', () => {
         webPreferences: {
             nodeIntegration: true,
             // worldSafeExecuteJavaScript: true,
-            // contextIsolation: true,
+            contextIsolation: false,    //TODO: apparently this is unsafe, so look into how to rework things to allow context isolation
             enableRemoteModule: true
         }
     });
@@ -77,7 +77,7 @@ app.on('ready', () => {
         webPreferences: {
             nodeIntegration: true,
             // worldSafeExecuteJavaScript: true,
-            // contextIsolation: true,
+            contextIsolation: false,
             enableRemoteModule: true
         }
     });
@@ -93,7 +93,7 @@ app.on('ready', () => {
         webPreferences: {
             nodeIntegration: true,
             // worldSafeExecuteJavaScript: true,
-            // contextIsolation: true,
+            contextIsolation: false,
             enableRemoteModule: true
         }
     });
